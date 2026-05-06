@@ -130,7 +130,7 @@ model WarehouseArea {
 model StorageBin {
   id_storage_bins   Int           @id @default(autoincrement()) // Nama PK sesuai gambar
   id_warehouse_area Int
-  bin_number        String        @db.VarChar(50) // Nama kolom sesuai gambar
+  bin_number        String        @db.VarChar(50)
   max_quantity      Int
   stock             Int
   
