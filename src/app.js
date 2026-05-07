@@ -17,6 +17,7 @@ const userRoutes = require('./routes/userRoute');
 const warehouseAreaRoutes = require('./routes/warehouseAreaRoute'); // Import route untuk warehouse area
 const storageBinRoutes = require('./routes/storageBinRoute'); // Import route untuk storage bin
 const palletTypeRoutes = require('./routes/palletTypeRoute'); // Import route untuk pallet type
+const palletRoutes = require('./routes/palletRoute'); // Import route untuk pallet
 
 const app = express();
 
@@ -33,6 +34,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/warehouse-areas', warehouseAreaRoutes);
 app.use('/api/storage-bins', storageBinRoutes);
 app.use('/api/pallet-types', palletTypeRoutes);
+app.use('/api/pallets', palletRoutes);
 
 // Route dasar untuk testing
 app.get('/', (req, res) => {
