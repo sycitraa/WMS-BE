@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
 
 // 1. Import library Swagger dan Konfigurasinya
 const swaggerUi = require('swagger-ui-express');
@@ -23,6 +24,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser()); // Middleware untuk membaca cookies
 app.use(morgan('dev'));
 
 // 3. Pasang Swagger menggunakan konfigurasi dari file config/swagger.js

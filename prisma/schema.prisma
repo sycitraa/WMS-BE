@@ -51,7 +51,8 @@ model User {
   password   String   @db.VarChar(225) // Di gambar: VARCHAR(225)
   created_at DateTime @default(now())
   
-  role       Role     @relation(fields: [id_role], references: [id_role])
+  role            Role            @relation(fields: [id_role], references: [id_role])
+  refreshTokens   RefreshToken[]
 
   inbound_plans  InboundPlan[]
   outbound_plans OutboundPlan[]
@@ -59,6 +60,18 @@ model User {
   scans          RfidScan[]
 
   @@map("users")
+}
+
+model RefreshToken {
+  id_refresh_token Int      @id @default(autoincrement())
+  id_user          Int
+  token            String   @unique @db.Text
+  expires_at       DateTime
+  created_at       DateTime @default(now())
+  
+  user             User     @relation(fields: [id_user], references: [id_user], onDelete: Cascade)
+
+  @@map("refresh_tokens")
 }
 
 model Menu {
