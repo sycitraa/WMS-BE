@@ -1,9 +1,10 @@
+const { Query } = require('pg');
 const palletTypeService = require('../services/palletTypeService');
 const { successResponse, errorResponse } = require('../utils/responseFormatter');
 
 const getPalletTypes = async (req, res) => {
   try {
-    const types = await palletTypeService.getAllPalletTypes();
+    const types = await palletTypeService.getAllPalletTypes(req.query);
     return successResponse(res, 200, 'Data Pallet Type berhasil diambil', types);
   } catch (error) {
     return errorResponse(res, error.statusCode || 500, error.message);

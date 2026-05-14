@@ -14,10 +14,33 @@ const router = express.Router();
  * @swagger
  * /api/pallet-types:
  *   get:
- *     summary: Ambil semua pallet type
+ *     summary: Ambil semua pallet type dengan pagination dan filtering
  *     tags: [Master Data Pallet Type]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Nomor halaman untuk pagination (default 1)
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Jumlah data per halaman (default 10)
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Pencarian berdasarkan nama pallet type
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *         description: Filter berdasarkan kategori pallet
  *     responses:
  *       200:
  *         description: Data pallet type berhasil diambil.
@@ -46,6 +69,21 @@ const router = express.Router();
  *                       pallet_name:
  *                         type: string
  *                         example: T1B
+ *                 meta:
+ *                   type: object
+ *                   properties:
+ *                     totalItems:
+ *                       type: integer
+ *                       example: 25
+ *                     itemsPerPage:
+ *                       type: integer
+ *                       example: 10
+ *                     currentPage:
+ *                       type: integer
+ *                       example: 1
+ *                     totalPages:
+ *                       type: integer
+ *                       example: 3
  *       401:
  *         description: Token tidak valid atau tidak tersedia.
  *       403:
