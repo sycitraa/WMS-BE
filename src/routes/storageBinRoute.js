@@ -6,8 +6,8 @@ const router = express.Router();
 /**
  * @swagger
  * tags:
- *   - name: Master Storage Bin
- *     description: API untuk mengelola Bin Penyimpanan
+ *   - name: Master Data Storage Bin
+ *     description: Endpoint API untuk Master Data Storage Bin
  */
 
 /**
@@ -15,7 +15,7 @@ const router = express.Router();
  * /api/storage-bins:
  *   get:
  *     summary: Ambil semua storage bin
- *     tags: [Master Storage Bin]
+ *     tags: [Master Data Storage Bin]
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -57,7 +57,7 @@ router.get('/', storageBinController.getBins);
  * /api/storage-bins/{id}:
  *   get:
  *     summary: Ambil detail storage bin berdasarkan ID
- *     tags: [Master Storage Bin]
+ *     tags: [Master Data Storage Bin]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -106,7 +106,7 @@ router.get('/:id', storageBinController.getBinDetail);
  * /api/storage-bins:
  *   post:
  *     summary: Tambah storage bin baru
- *     tags: [Master Storage Bin]
+ *     tags: [Master Data Storage Bin]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -171,7 +171,7 @@ router.post('/', storageBinController.addBin);
  * /api/storage-bins/{id}:
  *   put:
  *     summary: Update storage bin
- *     tags: [Master Storage Bin]
+ *     tags: [Master Data Storage Bin]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -241,7 +241,7 @@ router.put('/:id', storageBinController.updateBinData);
  * /api/storage-bins/{id}:
  *   delete:
  *     summary: Hapus storage bin
- *     tags: [Master Storage Bin]
+ *     tags: [Master Data Storage Bin]
  *     security:
  *       - bearerAuth: []
  *     parameters:

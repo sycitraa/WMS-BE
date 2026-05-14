@@ -6,8 +6,8 @@ const router = express.Router();
 /**
  * @swagger
  * tags:
- *   - name: Master Warehouse Area
- *     description: API untuk mengelola Area Gudang
+ *   - name: Master Data Warehouse Area
+ *     description: Endpoint API untuk Master Data Warehouse Area
  */
 
 /**
@@ -15,7 +15,7 @@ const router = express.Router();
  * /api/warehouse-areas:
  *   get:
  *     summary: Ambil semua area gudang
- *     tags: [Master Warehouse Area]
+ *     tags: [Master Data Warehouse Area]
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -29,7 +29,7 @@ router.get('/', warehouseAreaController.getAreas);
  * /api/warehouse-areas:
  *   post:
  *     summary: Tambah area baru
- *     tags: [Master Warehouse Area]
+ *     tags: [Master Data Warehouse Area]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -56,7 +56,7 @@ router.post('/', warehouseAreaController.addArea);
  * /api/warehouse-areas/{id}:
  *   put:
  *     summary: Update area gudang
- *     tags: [Master Warehouse Area]
+ *     tags: [Master Data Warehouse Area]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -100,7 +100,7 @@ router.put('/:id', warehouseAreaController.updateArea);
  * /api/warehouse-areas/{id}:
  *   delete:
  *     summary: Hapus area gudang
- *     tags: [Master Warehouse Area]
+ *     tags: [Master Data Warehouse Area]
  *     security:
  *       - bearerAuth: []
  *     parameters:
