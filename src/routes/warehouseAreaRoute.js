@@ -1,12 +1,7 @@
 const express = require('express');
 const warehouseAreaController = require('../controllers/warehouseAreaController');
-const verifyToken = require('../middlewares/authMiddleware');
-const authorizeRoles = require('../middlewares/roleMiddleware');
 
 const router = express.Router();
-
-router.use(verifyToken);
-router.use(authorizeRoles('ADMIN'));
 
 /**
  * @swagger

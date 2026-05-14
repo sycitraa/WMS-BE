@@ -3,7 +3,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 
-// 1. Import library Swagger dan Konfigurasinya
+// Import Library Swagger UI
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
 const swaggerUiOptions = {
@@ -12,37 +12,39 @@ const swaggerUiOptions = {
     },
 };
 
-// 2. Import Routes
+// Import Routes
 const authRoutes = require('./routes/authRoute');
 const userRoutes = require('./routes/userRoute');
-const warehouseAreaRoutes = require('./routes/warehouseAreaRoute'); // Import route untuk warehouse area
-const storageBinRoutes = require('./routes/storageBinRoute'); // Import route untuk storage bin
-const palletTypeRoutes = require('./routes/palletTypeRoute'); // Import route untuk pallet type
-const palletRoutes = require('./routes/palletRoute'); // Import route untuk pallet
+const warehouseAreaRoutes = require('./routes/warehouseAreaRoute');
+const storageBinRoutes = require('./routes/storageBinRoute');
+const palletTypeRoutes = require('./routes/palletTypeRoute');
+const palletRoutes = require('./routes/palletRoute');
+
+// Import Middleware
+const verifyToken = require("./middlewares/authMiddleware");
+const authorizeRoles = require("./middlewares/roleMiddleware");
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use(cookieParser()); // Middleware untuk membaca cookies
+app.use(cookieParser());
 app.use(morgan('dev'));
-
-// 3. Pasang Swagger menggunakan konfigurasi dari file config/swagger.js
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));
 
-// 4. Daftarkan Routes
+// Route Bebas
 app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/warehouse-areas', warehouseAreaRoutes);
-app.use('/api/storage-bins', storageBinRoutes);
-app.use('/api/pallet-types', palletTypeRoutes);
-app.use('/api/pallets', palletRoutes);
+
+// Route Authorized (Admin Routes)
+app.use('/api/users', verifyToken, authorizeRoles('ADMIN'), userRoutes);
+app.use('/api/pallets', verifyToken, authorizeRoles('ADMIN'), palletRoutes);
+app.use('/api/pallet-types', verifyToken, authorizeRoles('ADMIN'), palletTypeRoutes);
+app.use('/api/storage-bins', verifyToken, authorizeRoles('ADMIN'), storageBinRoutes);
+app.use('/api/warehouse-areas', verifyToken, authorizeRoles('ADMIN'), warehouseAreaRoutes);
 
 // Route dasar untuk testing
 app.get('/', (req, res) => {
     res.json({ message: 'Selamat datang di WMS API!' });
 });
-
-// PENTING: Jangan ada app.listen() di sini karena sudah ditangani oleh index.js
 
 module.exports = app;
