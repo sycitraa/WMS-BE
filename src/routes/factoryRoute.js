@@ -1,26 +1,26 @@
 const express = require('express');
-const palletTypeController = require('../controllers/palletTypeController');
+const factoryController = require('../controllers/factoryController');
 
 const router = express.Router();
 
 /**
  * @swagger
  * tags:
- *   - name: Master Data Pallet Type
- *     description: Endpoint API untuk Master Data Type Pallet
+ *   - name: Master Data Factory
+ *     description: Endpoint API untuk Master Data Factory
  */
 
 /**
  * @swagger
- * /api/pallet-types:
+ * /api/factories:
  *   get:
- *     summary: Ambil semua pallet type
- *     tags: [Master Data Pallet Type]
+ *     summary: Ambil semua factory
+ *     tags: [Master Data Factory]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Data pallet type berhasil diambil.
+ *         description: Data factory berhasil diambil.
  *         content:
  *           application/json:
  *             schema:
@@ -31,21 +31,28 @@ const router = express.Router();
  *                   example: true
  *                 message:
  *                   type: string
- *                   example: Data Pallet Type berhasil diambil
+ *                   example: Data Factory berhasil diambil
  *                 data:
  *                   type: array
  *                   items:
  *                     type: object
  *                     properties:
- *                       id_pallet_type:
+ *                       id_factory:
  *                         type: integer
  *                         example: 1
- *                       pallet_category:
+ *                       factory_number:
  *                         type: string
- *                         example: Standart
- *                       pallet_name:
+ *                         example: FAC-001
+ *                       factory_email:
  *                         type: string
- *                         example: T1B
+ *                         format: email
+ *                         example: factory1@example.com
+ *                       factory_name:
+ *                         type: string
+ *                         example: Factory Satu
+ *                       factory_address:
+ *                         type: string
+ *                         example: Jl. Industri No. 1, Bekasi
  *       401:
  *         description: Token tidak valid atau tidak tersedia.
  *       403:
@@ -53,14 +60,14 @@ const router = express.Router();
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.get('/', palletTypeController.getPalletTypes);
+router.get('/', factoryController.getFactories);
 
 /**
  * @swagger
- * /api/pallet-types/{id}:
+ * /api/factories/{id}:
  *   get:
- *     summary: Ambil detail pallet type berdasarkan ID
- *     tags: [Master Data Pallet Type]
+ *     summary: Ambil detail factory berdasarkan ID
+ *     tags: [Master Data Factory]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -69,10 +76,10 @@ router.get('/', palletTypeController.getPalletTypes);
  *         required: true
  *         schema:
  *           type: integer
- *         description: ID pallet type.
+ *         description: ID factory.
  *     responses:
  *       200:
- *         description: Detail pallet type berhasil diambil.
+ *         description: Detail factory berhasil diambil.
  *         content:
  *           application/json:
  *             schema:
@@ -83,36 +90,43 @@ router.get('/', palletTypeController.getPalletTypes);
  *                   example: true
  *                 message:
  *                   type: string
- *                   example: Detail Pallet Type berhasil diambil
+ *                   example: Detail Factory berhasil diambil
  *                 data:
  *                   type: object
  *                   properties:
- *                     id_pallet_type:
+ *                     id_factory:
  *                       type: integer
  *                       example: 1
- *                     pallet_category:
+ *                     factory_number:
  *                       type: string
- *                       example: Standart
- *                     pallet_name:
+ *                       example: FAC-001
+ *                     factory_email:
  *                       type: string
- *                       example: T1B
+ *                       format: email
+ *                       example: factory1@example.com
+ *                     factory_name:
+ *                       type: string
+ *                       example: Factory Satu
+ *                     factory_address:
+ *                       type: string
+ *                       example: Jl. Industri No. 1, Bekasi
  *       401:
  *         description: Token tidak valid atau tidak tersedia.
  *       403:
  *         description: Akses ditolak karena role tidak sesuai.
  *       404:
- *         description: Pallet Type tidak ditemukan.
+ *         description: Factory tidak ditemukan.
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.get('/:id', palletTypeController.getPalletTypeDetail);
+router.get('/:id', factoryController.getFactoryDetail);
 
 /**
  * @swagger
- * /api/pallet-types:
+ * /api/factories:
  *   post:
- *     summary: Tambah pallet type baru
- *     tags: [Master Data Pallet Type]
+ *     summary: Tambah factory baru
+ *     tags: [Master Data Factory]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -122,18 +136,27 @@ router.get('/:id', palletTypeController.getPalletTypeDetail);
  *           schema:
  *             type: object
  *             required:
- *               - pallet_category
- *               - pallet_name
+ *               - factory_number
+ *               - factory_email
+ *               - factory_name
+ *               - factory_address
  *             properties:
- *               pallet_category:
+ *               factory_number:
  *                 type: string
- *                 example: Standart
- *               pallet_name:
+ *                 example: FAC-001
+ *               factory_email:
  *                 type: string
- *                 example: T1B
+ *                 format: email
+ *                 example: factory1@example.com
+ *               factory_name:
+ *                 type: string
+ *                 example: Factory Satu
+ *               factory_address:
+ *                 type: string
+ *                 example: Jl. Industri No. 1, Bekasi
  *     responses:
  *       201:
- *         description: Pallet type berhasil ditambahkan.
+ *         description: Factory berhasil ditambahkan.
  *         content:
  *           application/json:
  *             schema:
@@ -144,21 +167,28 @@ router.get('/:id', palletTypeController.getPalletTypeDetail);
  *                   example: true
  *                 message:
  *                   type: string
- *                   example: Pallet Type berhasil ditambahkan
+ *                   example: Factory berhasil ditambahkan
  *                 data:
  *                   type: object
  *                   properties:
- *                     id_pallet_type:
+ *                     id_factory:
  *                       type: integer
  *                       example: 1
- *                     pallet_category:
+ *                     factory_number:
  *                       type: string
- *                       example: Standart
- *                     pallet_name:
+ *                       example: FAC-001
+ *                     factory_email:
  *                       type: string
- *                       example: T1B
+ *                       format: email
+ *                       example: factory1@example.com
+ *                     factory_name:
+ *                       type: string
+ *                       example: Factory Satu
+ *                     factory_address:
+ *                       type: string
+ *                       example: Jl. Industri No. 1, Bekasi
  *       400:
- *         description: Data tidak valid atau nama pallet sudah digunakan.
+ *         description: Data tidak valid atau factory number sudah digunakan.
  *       401:
  *         description: Token tidak valid atau tidak tersedia.
  *       403:
@@ -166,14 +196,14 @@ router.get('/:id', palletTypeController.getPalletTypeDetail);
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.post('/', palletTypeController.addPalletType);
+router.post('/', factoryController.addFactory);
 
 /**
  * @swagger
- * /api/pallet-types/{id}:
+ * /api/factories/{id}:
  *   put:
- *     summary: Update data pallet type
- *     tags: [Master Data Pallet Type]
+ *     summary: Update factory
+ *     tags: [Master Data Factory]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -182,7 +212,7 @@ router.post('/', palletTypeController.addPalletType);
  *         required: true
  *         schema:
  *           type: integer
- *         description: ID pallet type.
+ *         description: ID factory.
  *     requestBody:
  *       required: true
  *       content:
@@ -190,15 +220,22 @@ router.post('/', palletTypeController.addPalletType);
  *           schema:
  *             type: object
  *             properties:
- *               pallet_category:
+ *               factory_number:
  *                 type: string
- *                 example: Standart
- *               pallet_name:
+ *                 example: FAC-001
+ *               factory_email:
  *                 type: string
- *                 example: T1B
+ *                 format: email
+ *                 example: factorybaru@example.com
+ *               factory_name:
+ *                 type: string
+ *                 example: Factory Baru
+ *               factory_address:
+ *                 type: string
+ *                 example: Jl. Industri No. 2, Bekasi
  *     responses:
  *       200:
- *         description: Pallet type berhasil diperbarui.
+ *         description: Factory berhasil diperbarui.
  *         content:
  *           application/json:
  *             schema:
@@ -209,38 +246,45 @@ router.post('/', palletTypeController.addPalletType);
  *                   example: true
  *                 message:
  *                   type: string
- *                   example: Pallet Type berhasil diperbarui
+ *                   example: Factory berhasil diperbarui
  *                 data:
  *                   type: object
  *                   properties:
- *                     id_pallet_type:
+ *                     id_factory:
  *                       type: integer
  *                       example: 1
- *                     pallet_category:
+ *                     factory_number:
  *                       type: string
- *                       example: Standart
- *                     pallet_name:
+ *                       example: FAC-001
+ *                     factory_email:
  *                       type: string
- *                       example: T1B
+ *                       format: email
+ *                       example: factorybaru@example.com
+ *                     factory_name:
+ *                       type: string
+ *                       example: Factory Baru
+ *                     factory_address:
+ *                       type: string
+ *                       example: Jl. Industri No. 2, Bekasi
  *       400:
- *         description: Data tidak valid atau nama pallet sudah digunakan.
+ *         description: Data tidak valid atau factory number sudah digunakan.
  *       401:
  *         description: Token tidak valid atau tidak tersedia.
  *       403:
  *         description: Akses ditolak karena role tidak sesuai.
  *       404:
- *         description: Pallet Type tidak ditemukan.
+ *         description: Factory tidak ditemukan.
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.put('/:id', palletTypeController.updatePalletTypeData);
+router.put('/:id', factoryController.updateFactoryData);
 
 /**
  * @swagger
- * /api/pallet-types/{id}:
+ * /api/factories/{id}:
  *   delete:
- *     summary: Hapus pallet type
- *     tags: [Master Data Pallet Type]
+ *     summary: Hapus factory
+ *     tags: [Master Data Factory]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -249,10 +293,10 @@ router.put('/:id', palletTypeController.updatePalletTypeData);
  *         required: true
  *         schema:
  *           type: integer
- *         description: ID pallet type.
+ *         description: ID factory.
  *     responses:
  *       200:
- *         description: Pallet type berhasil dihapus.
+ *         description: Factory berhasil dihapus.
  *         content:
  *           application/json:
  *             schema:
@@ -263,17 +307,16 @@ router.put('/:id', palletTypeController.updatePalletTypeData);
  *                   example: true
  *                 message:
  *                   type: string
- *                   example: Pallet Type berhasil dihapus
+ *                   example: Factory berhasil dihapus
  *       401:
  *         description: Token tidak valid atau tidak tersedia.
  *       403:
  *         description: Akses ditolak karena role tidak sesuai.
  *       404:
- *         description: Pallet Type tidak ditemukan.
+ *         description: Factory tidak ditemukan.
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.delete('/:id', palletTypeController.removePalletType);
+router.delete('/:id', factoryController.removeFactory);
 
 module.exports = router;
-

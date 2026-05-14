@@ -19,10 +19,12 @@ const warehouseAreaRoutes = require('./routes/warehouseAreaRoute');
 const storageBinRoutes = require('./routes/storageBinRoute');
 const palletTypeRoutes = require('./routes/palletTypeRoute');
 const palletRoutes = require('./routes/palletRoute');
+const destinationRoutes = require('./routes/destinationRoute');
+const factoryRoutes = require('./routes/factoryRoute');
 
 // Import Middleware
-const verifyToken = require("./middlewares/authMiddleware");
-const authorizeRoles = require("./middlewares/roleMiddleware");
+const verifyToken = require('./middlewares/authMiddleware');
+const authorizeRoles = require('./middlewares/roleMiddleware');
 
 const app = express();
 
@@ -41,6 +43,8 @@ app.use('/api/pallets', verifyToken, authorizeRoles('ADMIN'), palletRoutes);
 app.use('/api/pallet-types', verifyToken, authorizeRoles('ADMIN'), palletTypeRoutes);
 app.use('/api/storage-bins', verifyToken, authorizeRoles('ADMIN'), storageBinRoutes);
 app.use('/api/warehouse-areas', verifyToken, authorizeRoles('ADMIN'), warehouseAreaRoutes);
+app.use('/api/destinations', verifyToken, authorizeRoles('ADMIN'), destinationRoutes);
+app.use('/api/factories', verifyToken, authorizeRoles('ADMIN'), factoryRoutes);
 
 // Route dasar untuk testing
 app.get('/', (req, res) => {

@@ -6,8 +6,8 @@ const router = express.Router();
 /**
  * @swagger
  * tags:
- *   - name: User Management
- *     description: Kelola data user (Hanya Admin)
+ *   - name: Master Data User
+ *     description: Endpoint API untuk Master Data User
  */
 
 /**
@@ -15,7 +15,7 @@ const router = express.Router();
  * /api/users:
  *   get:
  *     summary: Ambil semua daftar user
- *     tags: [User Management]
+ *     tags: [Master Data User]
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -74,7 +74,7 @@ router.get('/', userController.getProfiles);
  * /api/users:
  *   post:
  *     summary: Tambah user baru
- *     tags: [User Management]
+ *     tags: [Master Data User]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -148,7 +148,7 @@ router.post('/', userController.createNewUser);
  * /api/users/{id}:
  *   put:
  *     summary: Update data user
- *     tags: [User Management]
+ *     tags: [Master Data User]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -226,7 +226,7 @@ router.put('/:id', userController.updateExistingUser);
  * /api/users/{id}:
  *   delete:
  *     summary: Hapus user
- *     tags: [User Management]
+ *     tags: [Master Data User]
  *     security:
  *       - bearerAuth: []
  *     parameters:
