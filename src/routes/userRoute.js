@@ -1,13 +1,7 @@
 const express = require('express');
 const userController = require('../controllers/userController');
-const verifyToken = require('../middlewares/authMiddleware');
-const authorizeRoles = require('../middlewares/roleMiddleware');
 
 const router = express.Router();
-
-// Semua endpoint di sini butuh LOGIN dan harus ADMIN
-router.use(verifyToken);
-router.use(authorizeRoles('ADMIN'));
 
 /**
  * @swagger

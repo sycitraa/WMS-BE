@@ -1,4 +1,3 @@
-// src/services/userService.js
 const prisma = require('../config/prisma');
 const bcrypt = require('bcryptjs');
 const AppError = require('../utils/AppError');

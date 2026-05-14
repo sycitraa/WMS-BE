@@ -10,10 +10,8 @@ const login = async (req, res) => {
       return errorResponse(res, 400, 'Email dan password wajib diisi');
     }
 
-    // Panggil service
     const result = await authService.login(email, password);
 
-    // Kirim refresh token via HTTP-only cookie (lebih aman)
     res.cookie('refreshToken', result.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -21,32 +19,27 @@ const login = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 hari
     });
 
-    // Kirim response sukses dengan access token (client harus simpan di memory/state)
     return successResponse(res, 200, 'Login berhasil', {
       accessToken: result.accessToken,
       user: result.user,
     });
     
   } catch (error) {
-    // Tangkap AppError (misal 401) atau error server (500)
     return errorResponse(res, error.statusCode || 500, error.message);
   }
 };
 
 const logout = async (req, res) => {
   try {
-    const userId = req.user.id_user; // Dari authMiddleware
-    const refreshToken = req.cookies.refreshToken; // Dari cookie
+    const userId = req.user.id_user;
+    const refreshToken = req.cookies.refreshToken;
 
-    // Validasi refresh token ada
     if (!refreshToken) {
       return errorResponse(res, 400, 'Refresh token tidak ditemukan');
     }
 
-    // Panggil service logout
     const result = await authService.logout(userId, refreshToken);
 
-    // Hapus refresh token dari cookie
     res.clearCookie('refreshToken');
 
     return successResponse(res, 200, result.message);
@@ -58,14 +51,12 @@ const logout = async (req, res) => {
 
 const refreshToken = async (req, res) => {
   try {
-    const refreshTokenFromCookie = req.cookies.refreshToken; // Dari cookie
+    const refreshTokenFromCookie = req.cookies.refreshToken;
 
-    // Validasi refresh token ada
     if (!refreshTokenFromCookie) {
       return errorResponse(res, 401, 'Refresh token tidak ditemukan. Silakan login ulang.');
     }
 
-    // Panggil service refresh token
     const result = await authService.refreshAccessToken(refreshTokenFromCookie);
 
     return successResponse(res, 200, 'Access token berhasil di-refresh', {
@@ -73,7 +64,6 @@ const refreshToken = async (req, res) => {
     });
     
   } catch (error) {
-    // Jika error, hapus cookie refresh token
     res.clearCookie('refreshToken');
     return errorResponse(res, error.statusCode || 500, error.message);
   }
