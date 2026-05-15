@@ -3,7 +3,7 @@ const { successResponse, errorResponse } = require('../utils/responseFormatter')
 
 const getBins = async (req, res) => {
   try {
-    const bins = await storageBinService.getAllBins();
+    const bins = await storageBinService.getAllBins(req.query);
     return successResponse(res, 200, 'Data Storage Bin berhasil diambil', bins);
   } catch (error) {
     return errorResponse(res, error.statusCode || 500, error.message);

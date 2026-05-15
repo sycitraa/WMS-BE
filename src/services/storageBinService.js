@@ -1,15 +1,48 @@
 const prisma = require('../config/prisma');
 const AppError = require('../utils/AppError');
 
-const getAllBins = async () => {
-  return await prisma.storageBin.findMany({
-    include: { 
-      warehouse_area: {
-        select: { warehouse_area_number: true, warehouse_area_name: true }
-      } 
-    },
-    orderBy: { id_storage_bins: 'asc' }
-  });
+const getAllBins = async (query) => {
+  const page = parseInt(query.page) || 1;
+  const limit = parseInt(query.limit) || 10;
+  const search = query.search || '';
+  const id_warehouse_area = query.id_warehouse_area || '';
+
+  const skip = (page - 1) * limit;
+
+  const whereCondition = {};
+
+  if (search) {
+    whereCondition.bin_number = { contains: search, mode: 'insensitive' };
+  }
+
+  if (id_warehouse_area) {
+    whereCondition.id_warehouse_area = parseInt(id_warehouse_area, 10);
+  }
+
+  const [data, totalItems] = await prisma.$transaction([
+    prisma.storageBin.findMany({
+      where: whereCondition,
+      skip: skip,
+      take: limit,
+      include: {
+        warehouse_area: {
+          select: { warehouse_area_number: true, warehouse_area_name: true }
+        }
+      },
+      orderBy: { id_storage_bins: 'asc' }
+    }),
+    prisma.storageBin.count({ where: whereCondition })
+  ]);
+
+  return {
+    data,
+    meta: {
+      totalItems,
+      itemPerpage: limit,
+      currentPage: page,
+      totalPages: Math.ceil(totalItems / limit)
+    }
+  }
 };
 
 const getBinById = async (id) => {
@@ -42,8 +75,8 @@ const createBin = async (data) => {
   if (exists) throw new AppError('Nomor Storage Bin sudah terdaftar', 400);
 
   return await prisma.storageBin.create({
-    data: { 
-      bin_number, 
+    data: {
+      bin_number,
       id_warehouse_area: areaId,
       max_quantity: max_quantity ? parseInt(max_quantity, 10) : 50,
       stock: 0

@@ -14,10 +14,28 @@ const router = express.Router();
  * @swagger
  * /api/destinations:
  *   get:
- *     summary: Ambil semua destination
+ *     summary: Ambil semua destination dengan pagination dan filtering
  *     tags: [Master Data Destination]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Nomor halaman pagination.
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Jumlah data per halaman.
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Pencarian berdasarkan nomor, nama, email, atau alamat destination.
  *     responses:
  *       200:
  *         description: Data destination berhasil diambil.
@@ -53,6 +71,21 @@ const router = express.Router();
  *                       destination_address:
  *                         type: string
  *                         example: Jl. Industri No. 10, Cikarang
+ *                 meta:
+ *                   type: object
+ *                   properties:
+ *                     totalItems:
+ *                       type: integer
+ *                       example: 25
+ *                     itemsPerPage:
+ *                       type: integer
+ *                       example: 10
+ *                     currentPage:
+ *                       type: integer
+ *                       example: 1
+ *                     totalPages:
+ *                       type: integer
+ *                       example: 3
  *       401:
  *         description: Token tidak valid atau tidak tersedia.
  *       403:

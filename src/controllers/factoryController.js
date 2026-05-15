@@ -3,7 +3,7 @@ const { successResponse, errorResponse } = require('../utils/responseFormatter')
 
 const getFactories = async (req, res) => {
   try {
-    const factories = await factoryService.getAllFactories();
+    const factories = await factoryService.getAllFactories(req.query);
     return successResponse(res, 200, 'Data Factory berhasil diambil', factories);
   } catch (error) {
     return errorResponse(res, error.statusCode || 500, error.message);

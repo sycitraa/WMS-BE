@@ -14,10 +14,38 @@ const router = express.Router();
  * @swagger
  * /api/pallets:
  *   get:
- *     summary: Ambil semua data pallet
+ *     summary: Ambil semua data pallet dengan pagination dan filtering
  *     tags: [Master Data Pallet]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Nomor halaman pagination.
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Jumlah data per halaman.
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Pencarian berdasarkan RFID tag atau lokasi.
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *         description: Filter berdasarkan status pallet.
+ *       - in: query
+ *         name: id_pallet_type
+ *         schema:
+ *           type: integer
+ *         description: Filter berdasarkan ID pallet type.
  *     responses:
  *       200:
  *         description: Data pallet berhasil diambil.
@@ -61,6 +89,21 @@ const router = express.Router();
  *                           pallet_name:
  *                             type: string
  *                             example: "T2F"
+ *                 meta:
+ *                   type: object
+ *                   properties:
+ *                     totalItems:
+ *                       type: integer
+ *                       example: 120
+ *                     itemsPerPage:
+ *                       type: integer
+ *                       example: 10
+ *                     currentPage:
+ *                       type: integer
+ *                       example: 1
+ *                     totalPages:
+ *                       type: integer
+ *                       example: 12
  *       401:
  *         description: Token tidak valid atau tidak tersedia.
  *       403:

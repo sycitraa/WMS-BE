@@ -14,35 +14,91 @@ const router = express.Router();
  * @swagger
  * /api/storage-bins:
  *   get:
- *     summary: Ambil semua storage bin
+ *     summary: Ambil semua storage bin dengan pagination dan filtering
  *     tags: [Master Data Storage Bin]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Nomor halaman pagination.
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Jumlah data per halaman.
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Pencarian berdasarkan nomor bin.
+ *       - in: query
+ *         name: id_warehouse_area
+ *         schema:
+ *           type: integer
+ *         description: Filter berdasarkan ID warehouse area.
  *     responses:
  *       200:
- *         description: Berhasil mengambil semua storage bin
+ *         description: Data storage bin berhasil diambil.
  *         content:
  *           application/json:
  *             schema:
  *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                     example: 1
- *                   bin_number:
- *                     type: string
- *                     example: "BIN-001"
- *                   id_warehouse_area:
- *                     type: integer
- *                     example: 1
- *                   max_quantity:
- *                     type: integer
- *                     example: 100
- *                   stock:
- *                     type: integer
- *                     example: 50
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Data Storage Bin berhasil diambil
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id_storage_bins:
+ *                         type: integer
+ *                         example: 1
+ *                       bin_number:
+ *                         type: string
+ *                         example: BIN-001
+ *                       id_warehouse_area:
+ *                         type: integer
+ *                         example: 1
+ *                       max_quantity:
+ *                         type: integer
+ *                         example: 100
+ *                       stock:
+ *                         type: integer
+ *                         example: 50
+ *                       warehouse_area:
+ *                         type: object
+ *                         properties:
+ *                           warehouse_area_number:
+ *                             type: string
+ *                             example: WH-AREA-001
+ *                           warehouse_area_name:
+ *                             type: string
+ *                             example: Transit
+ *                 meta:
+ *                   type: object
+ *                   properties:
+ *                     totalItems:
+ *                       type: integer
+ *                       example: 40
+ *                     itemsPerPage:
+ *                       type: integer
+ *                       example: 10
+ *                     currentPage:
+ *                       type: integer
+ *                       example: 1
+ *                     totalPages:
+ *                       type: integer
+ *                       example: 4
  *       401:
  *         description: Tidak terautentikasi
  *       403:
@@ -75,7 +131,7 @@ router.get('/', storageBinController.getBins);
  *             schema:
  *               type: object
  *               properties:
- *                 id:
+ *                 id_storage_bins:
  *                   type: integer
  *                   example: 1
  *                 bin_number:
@@ -90,6 +146,18 @@ router.get('/', storageBinController.getBins);
  *                 stock:
  *                   type: integer
  *                   example: 50
+ *                 warehouse_area:
+ *                   type: object
+ *                   properties:
+ *                     id_warehouse_area:
+ *                       type: integer
+ *                       example: 1
+ *                     warehouse_area_number:
+ *                       type: string
+ *                       example: WH-AREA-001
+ *                     warehouse_area_name:
+ *                       type: string
+ *                       example: Transit
  *       401:
  *         description: Tidak terautentikasi
  *       403:
@@ -140,7 +208,7 @@ router.get('/:id', storageBinController.getBinDetail);
  *             schema:
  *               type: object
  *               properties:
- *                 id:
+ *                 id_storage_bins:
  *                   type: integer
  *                   example: 1
  *                 bin_number:
@@ -208,7 +276,7 @@ router.post('/', storageBinController.addBin);
  *             schema:
  *               type: object
  *               properties:
- *                 id:
+ *                 id_storage_bins:
  *                   type: integer
  *                   example: 1
  *                 bin_number:

@@ -14,13 +14,71 @@ const router = express.Router();
  * @swagger
  * /api/warehouse-areas:
  *   get:
- *     summary: Ambil semua area gudang
+ *     summary: Ambil semua area gudang dengan pagination dan filtering
  *     tags: [Master Data Warehouse Area]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Nomor halaman pagination.
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Jumlah data per halaman.
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Pencarian berdasarkan nomor atau nama area gudang.
  *     responses:
  *       200:
- *         description: Berhasil
+ *         description: Data warehouse area berhasil diambil.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Data Warehouse Area berhasil diambil
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id_warehouse_area:
+ *                         type: integer
+ *                         example: 1
+ *                       warehouse_area_number:
+ *                         type: string
+ *                         example: WH-AREA-001
+ *                       warehouse_area_name:
+ *                         type: string
+ *                         example: Transit
+ *                 meta:
+ *                   type: object
+ *                   properties:
+ *                     totalItems:
+ *                       type: integer
+ *                       example: 15
+ *                     itemsPerPage:
+ *                       type: integer
+ *                       example: 10
+ *                     currentPage:
+ *                       type: integer
+ *                       example: 1
+ *                     totalPages:
+ *                       type: integer
+ *                       example: 2
  */
 router.get('/', warehouseAreaController.getAreas);
 

@@ -3,7 +3,7 @@ const { successResponse, errorResponse } = require('../utils/responseFormatter')
 
 const getPallets = async (req, res) => {
   try {
-    const pallets = await palletService.getAllPallets();
+    const pallets = await palletService.getAllPallets(req.query);
     return successResponse(res, 200, 'Data Pallet berhasil diambil', pallets);
   } catch (error) {
     return errorResponse(res, error.statusCode || 500, error.message);
