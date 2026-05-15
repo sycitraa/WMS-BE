@@ -2,13 +2,46 @@ const prisma = require('../config/prisma');
 const AppError = require('../utils/AppError');
 
 const getAllDestinations = async () => {
-  return await prisma.destination.findMany({
-    orderBy: { id_destination: 'asc' }
-  })
+  const page = parseInt(query.page) || 1;
+  const limit = parseInt(query.limit) || 10;
+  const search = query.search || '';
+
+  const skip = (page - 1) * limit;
+
+  const whereCondition = {};
+
+  if (search) {
+    whereCondition.OR = [
+      { destination_number: { contains: search, mode: 'insensitive' } },
+      { destination_name: { contains: search, mode: 'insensitive' } },
+      { destination_email: { contains: search, mode: 'insensitive' } },
+      { destination_address: { contains: search, mode: 'insensitive' } }
+    ];
+  }
+
+  const [data, totalItems] = await prisma.$transaction([
+    prisma.destination.findMany({
+      where: whereCondition,
+      skip: skip,
+      take: limit,
+      orderBy: { id_destination: 'asc' }
+    }),
+    prisma.destination.count({ where: whereCondition })
+  ]);
+
+  return {
+    data,
+    meta: {
+      totalItems,
+      itemPerPage: limit,
+      currentPage: page,
+      totalPages: Math.ceil(totalItems / limit)
+    }
+  };
 };
 
 const getDestinationById = async (id) => {
-  return await prisma.destination.findUnique({
+  const destination = await prisma.destination.findUnique({
     where: { id_destination: id }
   });
   if (!destination) throw new AppError('Destination tidak ditemukan', 404);

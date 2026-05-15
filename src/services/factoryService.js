@@ -2,9 +2,42 @@ const prisma = require('../config/prisma');
 const AppError = require('../utils/AppError');
 
 const getAllFactories = async () => {
-  return await prisma.factory.findMany({
-    orderBy: { id_factory: 'asc' }
-  })
+  const page = parseInt(query.page) || 1;
+  const limit = parseInt(query.limit) || 10;
+  const search = query.search || '';
+
+  const skip = (page - 1) * limit;
+
+  const whereCondition = {};
+
+  if (search) {
+    whereCondition.OR = [
+      { factory_number: { contains: search, mode: 'insensitive' } },
+      { factory_name: { contains: search, mode: 'insensitive' } },
+      { factory_email: { contains: search, mode: 'insensitive' } },
+      { factory_address: { contains: search, mode: 'insensitive' } }
+    ];
+  }
+
+  const [data, totalItems] = await prisma.$transaction([
+    prisma.factory.findMany({
+      where: whereCondition,
+      skip: skip,
+      take: limit,
+      orderBy: { id_factory: 'asc' }
+    }),
+    prisma.factory.count({ where: whereCondition })
+  ]);
+
+  return {
+    data,
+    meta: {
+      totalItems,
+      itemPerPage: limit,
+      currentPage: page,
+      totalPages: Math.ceil(totalItems / limit)
+    }
+  };
 };
 
 const getFactoryById = async (id) => {

@@ -1,15 +1,56 @@
 const prisma = require('../config/prisma');
 const AppError = require('../utils/AppError');
 
-const getAllPallets = async () => {
-  return await prisma.pallet.findMany({
-    include: {
-      pallet_type: {
-        select: { pallet_category: true, pallet_name: true }
-      }
-    },
-    orderBy: { id_pallet: 'asc' }
-  });
+const getAllPallets = async (query) => {
+  const page = parseInt(query.page) || 1;
+  const limit = parseInt(query.limit) || 10;
+  const search = query.search || '';
+  const status = query.status || '';
+  const id_pallet_type = query.id_pallet_type || '';
+
+  const skip = (page - 1) * limit;
+
+  const whereCondition = {};
+
+  if (search) {
+    whereCondition.OR = [
+      { rfid_tag: { contains: search, mode: 'insensitive' } },
+      { location: { contains: search, mode: 'insensitive' } }
+    ];
+  }
+
+  if (status) {
+    whereCondition.status = status;
+  }
+
+  if (id_pallet_type) {
+    whereCondition.id_pallet_type = parseInt(id_pallet_type, 10);
+  }
+
+  const [data, totalItems] = await prisma.$transaction([
+    prisma.pallet.findMany({
+      where: whereCondition,
+      skip: skip,
+      take: limit,
+      include: {
+        pallet_type: {
+          select: { pallet_category: true, pallet_name: true }
+        }
+      },
+      orderBy: { id_pallet: 'asc' }
+    }),
+    prisma.pallet.count({ where: whereCondition })
+  ]);
+
+  return {
+    data,
+    meta: {
+      totalItems,
+      itemsPerPage: limit,
+      currentPage: page,
+      totalPages: Math.ceil(totalItems / limit)
+    }
+  };
 };
 
 const getPalletById = async (id) => {

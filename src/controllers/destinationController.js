@@ -3,7 +3,7 @@ const { successResponse, errorResponse } = require('../utils/responseFormatter')
 
 const getDestinations = async (req, res) => {
   try {
-    const destinations = await destinationService.getAllDestinations();
+    const destinations = await destinationService.getAllDestinations(req.query);
     return successResponse(res, 200, 'Data Destination berhasil diambil', destinations);
   } catch (error) {
     return errorResponse(res, error.statusCode || 500, error.message);
