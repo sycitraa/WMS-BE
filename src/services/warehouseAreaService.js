@@ -33,7 +33,7 @@ const getAllWarehouseAreas = async (query) => {
     data,
     meta: {
       totalItems,
-      itemPerPage: limit,
+      itemsPerPage: limit,
       currentPage: page,
       totalPages
     }
@@ -64,11 +64,17 @@ const updateArea = async (id, data) => {
   const area = await prisma.warehouseArea.findUnique({ where: { id_warehouse_area: id } });
   if (!area) throw new AppError('Warehouse area tidak ditemukan', 404);
 
-  const updateData = { warehouse_area_number, warehouse_area_name };
+  if (warehouse_area_number && warehouse_area_number !== area.warehouse_area_number) {
+    const exists = await prisma.warehouseArea.findFirst({ where: { warehouse_area_number } });
+    if (exists) throw new AppError('Warehouse area number sudah digunakan', 400);
+  }
 
   return await prisma.warehouseArea.update({
     where: { id_warehouse_area: id },
-    data: updateData
+    data: {
+      warehouse_area_number: warehouse_area_number || area.warehouse_area_number,
+      warehouse_area_name: warehouse_area_name || area.warehouse_area_name
+    }
   });
 }
 
