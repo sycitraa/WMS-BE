@@ -1,7 +1,7 @@
 const prisma = require('../config/prisma');
 const AppError = require('../utils/AppError');
 
-const getAllFactories = async () => {
+const getAllFactories = async (query) => {
   const page = parseInt(query.page) || 1;
   const limit = parseInt(query.limit) || 10;
   const search = query.search || '';
@@ -33,7 +33,7 @@ const getAllFactories = async () => {
     data,
     meta: {
       totalItems,
-      itemPerPage: limit,
+      itemsPerPage: limit,
       currentPage: page,
       totalPages: Math.ceil(totalItems / limit)
     }

@@ -38,7 +38,7 @@ const getAllBins = async (query) => {
     data,
     meta: {
       totalItems,
-      itemPerpage: limit,
+      itemsPerPage: limit,
       currentPage: page,
       totalPages: Math.ceil(totalItems / limit)
     }
