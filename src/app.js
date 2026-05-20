@@ -21,6 +21,7 @@ const palletTypeRoutes = require('./routes/palletTypeRoute');
 const palletRoutes = require('./routes/palletRoute');
 const destinationRoutes = require('./routes/destinationRoute');
 const factoryRoutes = require('./routes/factoryRoute');
+const inboundPlanRoutes = require('./routes/inboundPlanRoute');
 
 // Import Middleware
 const verifyToken = require('./middlewares/authMiddleware');
@@ -45,6 +46,9 @@ app.use('/api/storage-bins', verifyToken, authorizeRoles('ADMIN'), storageBinRou
 app.use('/api/warehouse-areas', verifyToken, authorizeRoles('ADMIN'), warehouseAreaRoutes);
 app.use('/api/destinations', verifyToken, authorizeRoles('ADMIN'), destinationRoutes);
 app.use('/api/factories', verifyToken, authorizeRoles('ADMIN'), factoryRoutes);
+
+// Route Transaksi (otorisasi per-endpoint di route level)
+app.use('/api/inbound-plans', verifyToken, inboundPlanRoutes);
 
 // Route dasar untuk testing
 app.get('/', (req, res) => {
