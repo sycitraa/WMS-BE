@@ -88,8 +88,7 @@ router.post("/login", authController.login);
  *     summary: Logout dari sistem WMS
  *     description: Menghapus refresh token dan mengakhiri sesi user.
  *     tags: [Authentication]
- *     security:
- *       - bearerAuth: []
+ *     security: []
  *     responses:
  *       200:
  *         description: Logout berhasil.
@@ -104,14 +103,10 @@ router.post("/login", authController.login);
  *                 message:
  *                   type: string
  *                   example: Logout berhasil
- *       400:
- *         description: Refresh token tidak ditemukan.
- *       401:
- *         description: Token tidak valid atau sudah logout.
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.post("/logout", verifyToken, authController.logout);
+router.post("/logout", authController.logout);
 
 /**
  * @swagger
