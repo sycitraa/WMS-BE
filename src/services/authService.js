@@ -26,7 +26,7 @@ const login = async (email, password) => {
     id_user: user.id_user,
     email: user.email,
     id_role: user.id_role,
-    nama_role: user.role.nama_role, 
+    nama_role: user.role.nama_role,
   };
 
   // 5. Generate Access Token (Masa berlaku 8 jam)
@@ -62,20 +62,15 @@ const login = async (email, password) => {
   };
 };
 
-const logout = async (userId, refreshToken) => {
-  // 1. Hapus refresh token dari database berdasarkan user ID dan token
-  const deletedToken = await prisma.refreshToken.deleteMany({
+const logout = async (refreshToken) => {
+  // 1. Hapus refresh token dari database berdasarkan token saja
+  await prisma.refreshToken.deleteMany({
     where: {
-      id_user: userId,
       token: refreshToken,
     },
   });
 
-  // 2. Jika token tidak ditemukan di database
-  if (deletedToken.count === 0) {
-    throw new AppError('Token tidak valid atau sudah logout', 401);
-  }
-
+  // jika token tidak ditemukan. Jika sudah hilang, maka user sudah logout.
   return {
     message: 'Logout berhasil',
   };

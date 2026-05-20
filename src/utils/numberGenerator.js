@@ -1,4 +1,4 @@
-const prisma = require('../config/prisma');
+const { basePrisma } = require('../config/prisma');
 
 /**
  * Fungsi untuk membuat nomor dokumen otomatis.
@@ -39,7 +39,9 @@ const generateDocumentNumber = async (type, planDate) => {
   const searchPrefix = `${prefixText}-${dateStr}-`;
 
   // 3. Cari dokumen terakhir di bulan dan tahun yang sama
-  const lastDocument = await prisma[modelName].findFirst({
+  // Menggunakan basePrisma agar dokumen yang sudah di-soft delete tetap dihitung, 
+  // sehingga tidak terjadi duplikasi nomor dokumen.
+  const lastDocument = await basePrisma[modelName].findFirst({
     where: {
       [columnName]: { startsWith: searchPrefix }
     },

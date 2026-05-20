@@ -31,18 +31,18 @@ const login = async (req, res) => {
 
 const logout = async (req, res) => {
   try {
-    const userId = req.user.id_user;
-    const refreshToken = req.cookies.refreshToken;
+    // FE mungkin mengirim token via cookie atau body
+    const refreshToken = req.cookies.refreshToken || req.body.refreshToken;
 
-    if (!refreshToken) {
-      return errorResponse(res, 400, 'Refresh token tidak ditemukan');
+    if (refreshToken) {
+      await authService.logout(refreshToken);
     }
 
-    const result = await authService.logout(userId, refreshToken);
-
+    // Selalu clear cookie agar FE bisa membersihkan state mereka
     res.clearCookie('refreshToken');
 
-    return successResponse(res, 200, result.message);
+    // Selalu return 200 OK agar FE tidak terhambat saat proses logout
+    return successResponse(res, 200, 'Logout berhasil');
     
   } catch (error) {
     return errorResponse(res, error.statusCode || 500, error.message);
