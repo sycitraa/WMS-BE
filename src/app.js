@@ -22,6 +22,8 @@ const palletRoutes = require('./routes/palletRoute');
 const destinationRoutes = require('./routes/destinationRoute');
 const factoryRoutes = require('./routes/factoryRoute');
 const inboundPlanRoutes = require('./routes/inboundPlanRoute');
+const workOrderRoutes = require('./routes/workOrderRoute');
+const scanRoutes = require('./routes/scanRoute');
 
 // Import Middleware
 const verifyToken = require('./middlewares/authMiddleware');
@@ -49,6 +51,8 @@ app.use('/api/factories', verifyToken, authorizeRoles('ADMIN'), factoryRoutes);
 
 // Route Transaksi (otorisasi per-endpoint di route level)
 app.use('/api/inbound-plans', verifyToken, inboundPlanRoutes);
+app.use('/api/work-orders', verifyToken, workOrderRoutes);
+app.use('/api/scans', verifyToken, scanRoutes);
 
 // Route dasar untuk testing
 app.get('/', (req, res) => {
