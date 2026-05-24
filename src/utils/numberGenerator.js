@@ -17,7 +17,7 @@ const generateDocumentNumber = async (type, planDate) => {
       columnName = 'document_number';
       break;
     case 'OUTBOUND':
-      prefixText = 'SHP.PLAN';
+      prefixText = 'DLV.PLAN';
       modelName = 'outboundPlan';
       columnName = 'document_number';
       break;
@@ -33,7 +33,7 @@ const generateDocumentNumber = async (type, planDate) => {
   // 1. Ambil Bulan (2 digit) dan Tahun (4 digit) dari planDate
   const month = (planDate.getMonth() + 1).toString().padStart(2, '0');
   const year = planDate.getFullYear().toString();
-  
+
   // 2. Format: RCV.PLAN-052024-
   const dateStr = `${month}${year}`;
   const searchPrefix = `${prefixText}-${dateStr}-`;
@@ -59,7 +59,7 @@ const generateDocumentNumber = async (type, planDate) => {
   }
 
   const formattedSequence = newSequenceNumber.toString().padStart(4, '0');
-  
+
   return `${searchPrefix}${formattedSequence}`;
 };
 

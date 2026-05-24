@@ -22,6 +22,7 @@ const palletRoutes = require('./routes/palletRoute');
 const destinationRoutes = require('./routes/destinationRoute');
 const factoryRoutes = require('./routes/factoryRoute');
 const inboundPlanRoutes = require('./routes/inboundPlanRoute');
+const outboundPlanRoutes = require('./routes/outboundPlanRoute');
 const workOrderRoutes = require('./routes/workOrderRoute');
 const scanRoutes = require('./routes/scanRoute');
 
@@ -51,6 +52,7 @@ app.use('/api/factories', verifyToken, authorizeRoles('ADMIN'), factoryRoutes);
 
 // Route Transaksi (otorisasi per-endpoint di route level)
 app.use('/api/inbound-plans', verifyToken, inboundPlanRoutes);
+app.use('/api/outbound-plans', verifyToken, outboundPlanRoutes);
 app.use('/api/work-orders', verifyToken, workOrderRoutes);
 app.use('/api/scans', verifyToken, scanRoutes);
 
