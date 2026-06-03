@@ -2,9 +2,6 @@ const prisma = require('../config/prisma');
 const AppError = require('../utils/AppError');
 const { generateDocumentNumber } = require('../utils/numberGenerator');
 
-// ============================================================
-// 1. GET ALL - Ambil semua Outbound Plan (Pagination + Search)
-// ============================================================
 const getAllOutboundPlans = async (query) => {
   const page = parseInt(query.page) || 1;
   const limit = parseInt(query.limit) || 10;
@@ -12,7 +9,6 @@ const getAllOutboundPlans = async (query) => {
 
   const skip = (page - 1) * limit;
 
-  // Build WHERE condition secara dinamis berdasarkan parameter search
   const whereCondition = {};
 
   if (search) {
@@ -23,7 +19,6 @@ const getAllOutboundPlans = async (query) => {
     ];
   }
 
-  // $transaction: Jalankan findMany + count secara atomic (bersamaan)
   const [data, totalItems] = await prisma.$transaction([
     prisma.outboundPlan.findMany({
       where: whereCondition,
@@ -54,9 +49,6 @@ const getAllOutboundPlans = async (query) => {
   };
 };
 
-// ============================================================
-// 2. GET BY ID - Ambil detail 1 Outbound Plan + detail items
-// ============================================================
 const getOutboundPlanById = async (id) => {
   const outboundPlan = await prisma.outboundPlan.findUnique({
     where: { id_outbound_plan: id },
@@ -78,10 +70,6 @@ const getOutboundPlanById = async (id) => {
   return outboundPlan;
 };
 
-// ============================================================
-// 3. CREATE - Buat Outbound Plan baru (ADMIN only)
-//    document_number di-generate otomatis oleh numberGenerator
-// ============================================================
 const createOutboundPlan = async (userId, data) => {
   const { planning_month, remarks, details } = data;
 
@@ -132,10 +120,6 @@ const createOutboundPlan = async (userId, data) => {
   return newOutboundPlan;
 };
 
-// ============================================================
-// 4. UPDATE (PUT) - Admin update data Plan (ADMIN only)
-//    Status otomatis di-reset ke WAITING_APPROVAL
-// ============================================================
 const updateOutboundPlan = async (id, data) => {
   const { planning_month, remarks, details } = data;
 
@@ -193,10 +177,6 @@ const updateOutboundPlan = async (id, data) => {
   return updatedPlan;
 };
 
-// ============================================================
-// 5. PATCH STATUS - Supervisor approve/reject (SUPERVISOR only)
-//    Hanya mengubah status dan remarks
-// ============================================================
 const updateOutboundPlanStatus = async (id, data) => {
   const { status, remarks } = data;
 
@@ -239,9 +219,6 @@ const updateOutboundPlanStatus = async (id, data) => {
   return updatedPlan;
 };
 
-// ============================================================
-// 6. DELETE - Hapus Outbound Plan beserta semua detail-nya
-// ============================================================
 const deleteOutboundPlan = async (id) => {
   const existingPlan = await prisma.outboundPlan.findUnique({
     where: { id_outbound_plan: id }

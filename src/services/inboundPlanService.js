@@ -2,9 +2,6 @@ const prisma = require('../config/prisma');
 const AppError = require('../utils/AppError');
 const { generateDocumentNumber } = require('../utils/numberGenerator');
 
-// ============================================================
-// 1. GET ALL - Ambil semua Inbound Plan (Pagination + Search)
-// ============================================================
 const getAllInboundPlans = async (query) => {
   const page = parseInt(query.page) || 1;
   const limit = parseInt(query.limit) || 10;
@@ -23,15 +20,12 @@ const getAllInboundPlans = async (query) => {
     ];
   }
 
-  // $transaction: Jalankan findMany + count secara atomic (bersamaan)
-  // Ini menjamin total data dan data yang ditampilkan selalu konsisten
   const [data, totalItems] = await prisma.$transaction([
     prisma.inboundPlan.findMany({
       where: whereCondition,
       skip: skip,
       take: limit,
       orderBy: { id_inbound_plan: 'desc' },
-      // include: Sertakan data relasi agar FE tidak perlu request tambahan
       include: {
         user: { select: { nama: true } },
         details: {
@@ -56,9 +50,6 @@ const getAllInboundPlans = async (query) => {
   };
 };
 
-// ============================================================
-// 2. GET BY ID - Ambil detail 1 Inbound Plan + detail items
-// ============================================================
 const getInboundPlanById = async (id) => {
   const inboundPlan = await prisma.inboundPlan.findUnique({
     where: { id_inbound_plan: id },
@@ -80,29 +71,18 @@ const getInboundPlanById = async (id) => {
   return inboundPlan;
 };
 
-// ============================================================
-// 3. CREATE - Buat Inbound Plan baru (ADMIN only)
-//    document_number di-generate otomatis oleh numberGenerator
-// ============================================================
 const createInboundPlan = async (userId, data) => {
   const { planning_month, remarks, details } = data;
 
-  // 1. Validasi: planning_month wajib diisi
   if (!planning_month) {
     throw new AppError('Planning Month wajib diisi', 400);
   }
-
-  // 2. Validasi: minimal harus ada 1 detail item
   if (!details || !Array.isArray(details) || details.length === 0) {
     throw new AppError('Inbound Plan harus memiliki minimal 1 Detail Item', 400);
   }
 
-  // 3. Auto-generate document_number menggunakan numberGenerator
-  //    Contoh hasil: "RCV.PLAN-052026-0001"
   const planDate = new Date(planning_month);
   const document_number = await generateDocumentNumber('INBOUND', planDate);
-
-  // 4. Format setiap detail item & validasi kelengkapan data
   const formattedDetails = details.map((item, index) => {
     if (!item.id_pallet_type || !item.id_factory || !item.quantity) {
       throw new AppError(`Data item pada baris ke-${index + 1} tidak lengkap`, 400);
@@ -114,8 +94,6 @@ const createInboundPlan = async (userId, data) => {
     };
   });
 
-  // 5. Simpan ke database menggunakan Nested Writes
-  //    Prisma otomatis membuat InboundPlan + InboundPlanDetail dalam 1 transaksi
   const newInboundPlan = await prisma.inboundPlan.create({
     data: {
       id_user: userId,
@@ -141,10 +119,6 @@ const createInboundPlan = async (userId, data) => {
   return newInboundPlan;
 };
 
-// ============================================================
-// 4. UPDATE (PUT) - Admin update data Plan (ADMIN only)
-//    Status otomatis di-reset ke WAITING_APPROVAL
-// ============================================================
 const updateInboundPlan = async (id, data) => {
   const { planning_month, remarks, details } = data;
 
@@ -173,16 +147,10 @@ const updateInboundPlan = async (id, data) => {
     };
   });
 
-  // 4. Interactive Transaction: hapus detail lama → update plan + insert detail baru
-  //    Strategi "Replace": karena user bisa menambah/hapus/ubah item,
-  //    lebih aman hapus semua detail lama lalu buat ulang semuanya
   const updatedPlan = await prisma.$transaction(async (tx) => {
-    // Langkah A: Hapus semua detail lama
     await tx.inboundPlanDetail.deleteMany({
       where: { id_inbound_plan: id }
     });
-
-    // Langkah B: Update data plan + insert detail baru sekaligus
     return await tx.inboundPlan.update({
       where: { id_inbound_plan: id },
       data: {
@@ -210,10 +178,6 @@ const updateInboundPlan = async (id, data) => {
   return updatedPlan;
 };
 
-// ============================================================
-// 5. PATCH STATUS - Supervisor approve/reject (SUPERVISOR only)
-//    Hanya mengubah status dan remarks
-// ============================================================
 const updateInboundPlanStatus = async (id, data) => {
   const { status, remarks } = data;
 
@@ -260,9 +224,6 @@ const updateInboundPlanStatus = async (id, data) => {
   return updatedPlan;
 };
 
-// ============================================================
-// 6. DELETE - Hapus Inbound Plan beserta semua detail-nya
-// ============================================================
 const deleteInboundPlan = async (id) => {
   // 1. Pastikan plan ada di database
   const existingPlan = await prisma.inboundPlan.findUnique({
@@ -273,7 +234,6 @@ const deleteInboundPlan = async (id) => {
   }
 
   // 2. Transaction: hapus detail (child) dulu, baru hapus plan (parent)
-  //    Karena ada foreign key constraint, child harus dihapus terlebih dahulu
   await prisma.$transaction(async (tx) => {
     await tx.inboundPlanDetail.deleteMany({
       where: { id_inbound_plan: id }

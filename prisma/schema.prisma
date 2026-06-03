@@ -78,6 +78,7 @@ model RefreshToken {
 model Menu {
   id_menu   Int        @id @default(autoincrement())
   nama_menu String     @db.VarChar(50)
+  path_key  String     @unique @db.VarChar(50)
   roles     RoleMenu[]
 
   @@map("menu")
