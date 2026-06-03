@@ -11,9 +11,7 @@ const router = express.Router();
  *     description: Endpoint API untuk Transaksi Inbound Plan (Rencana Penerimaan Pallet)
  */
 
-// ============================================================
-// GET /api/inbound-plans — Akses: ADMIN & SUPERVISOR
-// ============================================================
+
 /**
  * @swagger
  * /api/inbound-plans:
@@ -135,9 +133,6 @@ const router = express.Router();
  */
 router.get('/', authorizeRoles('ADMIN', 'SUPERVISOR'), inboundPlanController.getInboundPlans);
 
-// ============================================================
-// GET /api/inbound-plans/:id — Akses: ADMIN & SUPERVISOR
-// ============================================================
 /**
  * @swagger
  * /api/inbound-plans/{id}:
@@ -229,9 +224,6 @@ router.get('/', authorizeRoles('ADMIN', 'SUPERVISOR'), inboundPlanController.get
  */
 router.get('/:id', authorizeRoles('ADMIN', 'SUPERVISOR'), inboundPlanController.getInboundPlanDetail);
 
-// ============================================================
-// POST /api/inbound-plans — Akses: ADMIN only
-// ============================================================
 /**
  * @swagger
  * /api/inbound-plans:
@@ -352,10 +344,6 @@ router.get('/:id', authorizeRoles('ADMIN', 'SUPERVISOR'), inboundPlanController.
  */
 router.post('/', authorizeRoles('ADMIN'), inboundPlanController.addInboundPlan);
 
-// ============================================================
-// PUT /api/inbound-plans/:id — Akses: ADMIN only
-// Status otomatis reset ke WAITING_APPROVAL
-// ============================================================
 /**
  * @swagger
  * /api/inbound-plans/{id}:
@@ -478,10 +466,6 @@ router.post('/', authorizeRoles('ADMIN'), inboundPlanController.addInboundPlan);
  */
 router.put('/:id', authorizeRoles('ADMIN'), inboundPlanController.updateInboundPlanData);
 
-// ============================================================
-// PATCH /api/inbound-plans/:id/status — Akses: SUPERVISOR only
-// Approve atau Reject Inbound Plan
-// ============================================================
 /**
  * @swagger
  * /api/inbound-plans/{id}/status:
@@ -556,9 +540,6 @@ router.put('/:id', authorizeRoles('ADMIN'), inboundPlanController.updateInboundP
  */
 router.patch('/:id/status', authorizeRoles('SUPERVISOR'), inboundPlanController.updateInboundPlanStatus);
 
-// ============================================================
-// DELETE /api/inbound-plans/:id — Akses: ADMIN only
-// ============================================================
 /**
  * @swagger
  * /api/inbound-plans/{id}:

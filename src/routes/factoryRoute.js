@@ -1,5 +1,6 @@
 const express = require('express');
 const factoryController = require('../controllers/factoryController');
+const authorizeRoles = require('../middlewares/roleMiddleware');
 
 const router = express.Router();
 
@@ -93,7 +94,7 @@ const router = express.Router();
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.get('/', factoryController.getFactories);
+router.get('/', authorizeRoles('ADMIN', 'SUPERVISOR'), factoryController.getFactories);
 
 /**
  * @swagger
@@ -152,7 +153,7 @@ router.get('/', factoryController.getFactories);
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.get('/:id', factoryController.getFactoryDetail);
+router.get('/:id', authorizeRoles('ADMIN', 'SUPERVISOR'), factoryController.getFactoryDetail);
 
 /**
  * @swagger
@@ -229,7 +230,7 @@ router.get('/:id', factoryController.getFactoryDetail);
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.post('/', factoryController.addFactory);
+router.post('/', authorizeRoles('ADMIN'), factoryController.addFactory);
 
 /**
  * @swagger
@@ -310,7 +311,7 @@ router.post('/', factoryController.addFactory);
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.put('/:id', factoryController.updateFactoryData);
+router.put('/:id', authorizeRoles('ADMIN'), factoryController.updateFactoryData);
 
 /**
  * @swagger
@@ -350,6 +351,6 @@ router.put('/:id', factoryController.updateFactoryData);
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.delete('/:id', factoryController.removeFactory);
+router.delete('/:id', authorizeRoles('ADMIN'), factoryController.removeFactory);
 
 module.exports = router;

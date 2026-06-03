@@ -25,6 +25,8 @@ const inboundPlanRoutes = require('./routes/inboundPlanRoute');
 const outboundPlanRoutes = require('./routes/outboundPlanRoute');
 const workOrderRoutes = require('./routes/workOrderRoute');
 const scanRoutes = require('./routes/scanRoute');
+const inventoryRoutes = require('./routes/inventoryRoute');
+const dashboardRoutes = require('./routes/dashboardRoute');
 
 // Import Middleware
 const verifyToken = require('./middlewares/authMiddleware');
@@ -41,20 +43,24 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOpti
 // Route Bebas
 app.use('/api/auth', authRoutes);
 
-// Route Authorized (Admin Routes)
+// Route Authorized (Admin Routes & Sebagian Supervisor)
 app.use('/api/users', verifyToken, authorizeRoles('ADMIN'), userRoutes);
 app.use('/api/pallets', verifyToken, authorizeRoles('ADMIN'), palletRoutes);
-app.use('/api/pallet-types', verifyToken, authorizeRoles('ADMIN'), palletTypeRoutes);
-app.use('/api/storage-bins', verifyToken, authorizeRoles('ADMIN'), storageBinRoutes);
 app.use('/api/warehouse-areas', verifyToken, authorizeRoles('ADMIN'), warehouseAreaRoutes);
-app.use('/api/destinations', verifyToken, authorizeRoles('ADMIN'), destinationRoutes);
-app.use('/api/factories', verifyToken, authorizeRoles('ADMIN'), factoryRoutes);
+
+// Route Master Data yang otorisasi dibedakan di level router (GET = Admin & Supervisor, POST/PUT/DELETE = Admin)
+app.use('/api/pallet-types', verifyToken, palletTypeRoutes);
+app.use('/api/storage-bins', verifyToken, storageBinRoutes);
+app.use('/api/destinations', verifyToken, destinationRoutes);
+app.use('/api/factories', verifyToken, factoryRoutes);
 
 // Route Transaksi (otorisasi per-endpoint di route level)
 app.use('/api/inbound-plans', verifyToken, inboundPlanRoutes);
 app.use('/api/outbound-plans', verifyToken, outboundPlanRoutes);
 app.use('/api/work-orders', verifyToken, workOrderRoutes);
 app.use('/api/scans', verifyToken, scanRoutes);
+app.use('/api/inventory', verifyToken, inventoryRoutes);
+app.use('/api/dashboard', verifyToken, dashboardRoutes);
 
 // Route dasar untuk testing
 app.get('/', (req, res) => {

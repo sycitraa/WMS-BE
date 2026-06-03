@@ -51,6 +51,53 @@ async function main() {
   console.log('✅ Master User berhasil di-seed');
 
   // ---------------------------------------------------------
+  // 2B. MASTER MENU & ROLES_MENUS
+  // ---------------------------------------------------------
+  const menusData = [
+    { nama_menu: 'Dashboard', path_key: 'dashboard' },
+    { nama_menu: 'Inbound Plan', path_key: 'inbound-plan' },
+    { nama_menu: 'Outbound Plan', path_key: 'outbound-plan' },
+    { nama_menu: 'Work Order', path_key: 'work-order' },
+    { nama_menu: 'Inventory', path_key: 'inventory' },
+    { nama_menu: 'Master Data', path_key: 'master-data' }
+  ];
+
+  const menuMap = {}; // Untuk menyimpan ID menu yang dihasilkan
+  for (const menu of menusData) {
+    let existingMenu = await prisma.menu.findUnique({ where: { path_key: menu.path_key } });
+    if (!existingMenu) {
+      existingMenu = await prisma.menu.create({ data: menu });
+    }
+    menuMap[menu.path_key] = existingMenu.id_menu;
+  }
+  console.log('✅ Master Menu berhasil di-seed');
+
+  // Relasi RoleMenu
+  const roleMenuMapping = {
+    'ADMIN': ['dashboard', 'inbound-plan', 'outbound-plan', 'work-order', 'inventory', 'master-data'],
+    'SUPERVISOR': ['dashboard', 'inbound-plan', 'outbound-plan', 'inventory'],
+    'OPERATOR': ['dashboard', 'work-order', 'inventory'],
+    'BOD': ['dashboard', 'inventory']
+  };
+
+  for (const [roleName, menuKeys] of Object.entries(roleMenuMapping)) {
+    const roleId = roleMap[roleName];
+    for (const menuKey of menuKeys) {
+      const menuId = menuMap[menuKey];
+      // Cek apakah relasi sudah ada
+      const existingRel = await prisma.roleMenu.findFirst({
+        where: { id_role: roleId, id_menu: menuId }
+      });
+      if (!existingRel) {
+        await prisma.roleMenu.create({
+          data: { id_role: roleId, id_menu: menuId }
+        });
+      }
+    }
+  }
+  console.log('✅ Relasi Roles_Menus berhasil di-seed');
+
+  // ---------------------------------------------------------
   // 3. MASTER PALLET TYPE
   // ---------------------------------------------------------
   const palletTypesData = [

@@ -1,5 +1,6 @@
 const express = require('express');
 const palletTypeController = require('../controllers/palletTypeController');
+const authorizeRoles = require('../middlewares/roleMiddleware');
 
 const router = express.Router();
 
@@ -91,7 +92,7 @@ const router = express.Router();
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.get('/', palletTypeController.getPalletTypes);
+router.get('/', authorizeRoles('ADMIN', 'SUPERVISOR'), palletTypeController.getPalletTypes);
 
 /**
  * @swagger
@@ -143,7 +144,7 @@ router.get('/', palletTypeController.getPalletTypes);
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.get('/:id', palletTypeController.getPalletTypeDetail);
+router.get('/:id', authorizeRoles('ADMIN', 'SUPERVISOR'), palletTypeController.getPalletTypeDetail);
 
 /**
  * @swagger
@@ -204,7 +205,7 @@ router.get('/:id', palletTypeController.getPalletTypeDetail);
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.post('/', palletTypeController.addPalletType);
+router.post('/', authorizeRoles('ADMIN'), palletTypeController.addPalletType);
 
 /**
  * @swagger
@@ -271,7 +272,7 @@ router.post('/', palletTypeController.addPalletType);
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.put('/:id', palletTypeController.updatePalletTypeData);
+router.put('/:id', authorizeRoles('ADMIN'), palletTypeController.updatePalletTypeData);
 
 /**
  * @swagger
@@ -311,7 +312,7 @@ router.put('/:id', palletTypeController.updatePalletTypeData);
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.delete('/:id', palletTypeController.removePalletType);
+router.delete('/:id', authorizeRoles('ADMIN'), palletTypeController.removePalletType);
 
 module.exports = router;
 

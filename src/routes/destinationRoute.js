@@ -1,5 +1,6 @@
 const express = require('express');
 const destinationController = require('../controllers/destinationController');
+const authorizeRoles = require('../middlewares/roleMiddleware');
 
 const router = express.Router();
 
@@ -93,7 +94,7 @@ const router = express.Router();
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.get('/', destinationController.getDestinations);
+router.get('/', authorizeRoles('ADMIN', 'SUPERVISOR'), destinationController.getDestinations);
 
 /**
  * @swagger
@@ -152,7 +153,7 @@ router.get('/', destinationController.getDestinations);
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.get('/:id', destinationController.getDestinationDetail);
+router.get('/:id', authorizeRoles('ADMIN', 'SUPERVISOR'), destinationController.getDestinationDetail);
 
 /**
  * @swagger
@@ -229,7 +230,7 @@ router.get('/:id', destinationController.getDestinationDetail);
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.post('/', destinationController.addDestination);
+router.post('/', authorizeRoles('ADMIN'), destinationController.addDestination);
 
 /**
  * @swagger
@@ -310,7 +311,7 @@ router.post('/', destinationController.addDestination);
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.put('/:id', destinationController.updateDestinationData);
+router.put('/:id', authorizeRoles('ADMIN'), destinationController.updateDestinationData);
 
 /**
  * @swagger
@@ -350,6 +351,6 @@ router.put('/:id', destinationController.updateDestinationData);
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.delete('/:id', destinationController.deleteDestination);
+router.delete('/:id', authorizeRoles('ADMIN'), destinationController.deleteDestination);
 
 module.exports = router;

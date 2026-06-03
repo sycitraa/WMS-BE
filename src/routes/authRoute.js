@@ -144,4 +144,23 @@ router.post("/logout", authController.logout);
  */
 router.post("/refresh", authController.refreshToken);
 
+/**
+ * @swagger
+ * /api/auth/me:
+ *   get:
+ *     summary: Mendapatkan data user yang sedang login beserta menu
+ *     description: Mengembalikan data profil user berdasarkan token yang valid dan daftar menu yang bisa diakses berdasarkan role user tersebut.
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Berhasil mengambil data user dan menu
+ *       401:
+ *         description: Unauthorized (Token tidak ada atau tidak valid)
+ *       404:
+ *         description: User tidak ditemukan
+ */
+router.get("/me", verifyToken, authController.getMe);
+
 module.exports = router;

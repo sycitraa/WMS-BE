@@ -1,5 +1,6 @@
 const express = require('express');
 const storageBinController = require('../controllers/storageBinController');
+const authorizeRoles = require('../middlewares/roleMiddleware');
 
 const router = express.Router();
 
@@ -106,7 +107,7 @@ const router = express.Router();
  *       500:
  *         description: Terjadi kesalahan server
  */
-router.get('/', storageBinController.getBins);
+router.get('/', authorizeRoles('ADMIN', 'SUPERVISOR'), storageBinController.getBins);
 
 /**
  * @swagger
@@ -167,7 +168,7 @@ router.get('/', storageBinController.getBins);
  *       500:
  *         description: Terjadi kesalahan server
  */
-router.get('/:id', storageBinController.getBinDetail);
+router.get('/:id', authorizeRoles('ADMIN', 'SUPERVISOR'), storageBinController.getBinDetail);
 
 /**
  * @swagger
@@ -232,7 +233,7 @@ router.get('/:id', storageBinController.getBinDetail);
  *       500:
  *         description: Terjadi kesalahan server
  */
-router.post('/', storageBinController.addBin);
+router.post('/', authorizeRoles('ADMIN'), storageBinController.addBin);
 
 /**
  * @swagger
@@ -302,7 +303,7 @@ router.post('/', storageBinController.addBin);
  *       500:
  *         description: Terjadi kesalahan server
  */
-router.put('/:id', storageBinController.updateBinData);
+router.put('/:id', authorizeRoles('ADMIN'), storageBinController.updateBinData);
 
 /**
  * @swagger
@@ -331,6 +332,6 @@ router.put('/:id', storageBinController.updateBinData);
  *       500:
  *         description: Terjadi kesalahan server
  */
-router.delete('/:id', storageBinController.removeBin);
+router.delete('/:id', authorizeRoles('ADMIN'), storageBinController.removeBin);
 
 module.exports = router;

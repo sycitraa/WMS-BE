@@ -1,14 +1,6 @@
 const prisma = require('../config/prisma');
 const AppError = require('../utils/AppError');
 
-// ============================================================
-// 1. SCAN PALLET — Operator input rfid_tag untuk 1 pallet
-//    4 operasi atomik dalam 1 transaksi:
-//    1) Catat log RfidScan
-//    2) Update Pallet (status & location)
-//    3) Update StorageBin (stock +1 atau -1)
-//    4) Update WorkOrderDetail (actual_pcs +1)
-// ============================================================
 const scanPallet = async (data, requestingUser) => {
   const { id_work_order, rfid_tag } = data;
 
@@ -65,7 +57,6 @@ const scanPallet = async (data, requestingUser) => {
   }
 
   // 6. Cari WorkOrderDetail yang cocok dengan pallet_type pallet
-  //    Jika ada beberapa detail dengan pallet_type yang sama, pilih yang belum penuh
   const matchingDetail = workOrder.details.find(
     (d) => d.id_pallet_type === pallet.id_pallet_type && d.actual_pcs < d.total_planning
   );
@@ -103,10 +94,8 @@ const scanPallet = async (data, requestingUser) => {
     }
   }
 
-  // --- EKSEKUSI DALAM 1 TRANSAKSI ---
   const result = await prisma.$transaction(async (tx) => {
 
-    // OPERASI 1: Catat log scan di tabel RfidScan
     const scanRecord = await tx.rfidScan.create({
       data: {
         id_pallet: pallet.id_pallet,
@@ -115,7 +104,6 @@ const scanPallet = async (data, requestingUser) => {
       }
     });
 
-    // OPERASI 2: Update Pallet (status & location)
     if (workOrder.work_order_category === 'INBOUND') {
       await tx.pallet.update({
         where: { id_pallet: pallet.id_pallet },
@@ -134,7 +122,6 @@ const scanPallet = async (data, requestingUser) => {
       });
     }
 
-    // OPERASI 3: Update StorageBin (stock +1 atau -1)
     const stockChange = workOrder.work_order_category === 'INBOUND' ? 1 : -1;
     await tx.storageBin.update({
       where: { id_storage_bins: storageBin.id_storage_bins },
@@ -143,7 +130,6 @@ const scanPallet = async (data, requestingUser) => {
       }
     });
 
-    // OPERASI 4: Update WorkOrderDetail (actual_pcs +1)
     await tx.workOrderDetail.update({
       where: { id_work_order_detail: matchingDetail.id_work_order_detail },
       data: {
@@ -176,9 +162,6 @@ const scanPallet = async (data, requestingUser) => {
   return scanWithRelations;
 };
 
-// ============================================================
-// 2. GET SCAN HISTORY — Riwayat scan untuk 1 Work Order
-// ============================================================
 const getScansByWorkOrder = async (woId, requestingUser) => {
   // 1. Pastikan WO ada
   const workOrder = await prisma.workOrder.findUnique({

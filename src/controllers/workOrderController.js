@@ -3,7 +3,6 @@ const { successResponse, errorResponse } = require('../utils/responseFormatter')
 
 const getWorkOrders = async (req, res) => {
   try {
-    // req.user berisi data dari JWT (id_user, nama_role, dll.)
     // Digunakan untuk filter: Operator hanya lihat WO miliknya
     const result = await workOrderService.getAllWorkOrders(req.query, req.user);
     return successResponse(res, 200, 'Data Work Order berhasil diambil', result);

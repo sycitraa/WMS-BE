@@ -123,8 +123,48 @@ const refreshAccessToken = async (refreshToken) => {
   };
 };
 
+const getMe = async (userId) => {
+  const user = await prisma.user.findUnique({
+    where: { id_user: userId },
+    include: {
+      role: {
+        include: {
+          menus: {
+            include: {
+              menu: true
+            },
+            orderBy: {
+              id_menu: 'asc'
+            }
+          }
+        }
+      }
+    }
+  });
+
+  if (!user) {
+    throw new AppError('User tidak ditemukan', 404);
+  }
+
+  const menus = user.role.menus.map(rm => ({
+    id_menu: rm.menu.id_menu,
+    nama_menu: rm.menu.nama_menu,
+    path_key: rm.menu.path_key
+  }));
+
+  return {
+    id_user: user.id_user,
+    nama: user.nama,
+    email: user.email,
+    id_role: user.id_role,
+    nama_role: user.role.nama_role,
+    menus
+  };
+};
+
 module.exports = {
   login,
   logout,
   refreshAccessToken,
+  getMe,
 };

@@ -119,7 +119,7 @@ const router = express.Router();
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.get('/', authorizeRoles('ADMIN', 'OPERATOR'), workOrderController.getWorkOrders);
+router.get('/', authorizeRoles('ADMIN', 'SUPERVISOR', 'OPERATOR'), workOrderController.getWorkOrders);
 
 /**
  * @swagger
@@ -236,7 +236,7 @@ router.get('/', authorizeRoles('ADMIN', 'OPERATOR'), workOrderController.getWork
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.get('/:id', authorizeRoles('ADMIN', 'OPERATOR'), workOrderController.getWorkOrderDetail);
+router.get('/:id', authorizeRoles('ADMIN', 'SUPERVISOR', 'OPERATOR'), workOrderController.getWorkOrderDetail);
 
 /**
  * @swagger

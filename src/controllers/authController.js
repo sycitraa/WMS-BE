@@ -21,9 +21,10 @@ const login = async (req, res) => {
 
     return successResponse(res, 200, 'Login berhasil', {
       accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
       user: result.user,
     });
-    
+
   } catch (error) {
     return errorResponse(res, error.statusCode || 500, error.message);
   }
@@ -43,7 +44,7 @@ const logout = async (req, res) => {
 
     // Selalu return 200 OK agar FE tidak terhambat saat proses logout
     return successResponse(res, 200, 'Logout berhasil');
-    
+
   } catch (error) {
     return errorResponse(res, error.statusCode || 500, error.message);
   }
@@ -62,9 +63,19 @@ const refreshToken = async (req, res) => {
     return successResponse(res, 200, 'Access token berhasil di-refresh', {
       accessToken: result.accessToken,
     });
-    
+
   } catch (error) {
     res.clearCookie('refreshToken');
+    return errorResponse(res, error.statusCode || 500, error.message);
+  }
+};
+
+const getMe = async (req, res) => {
+  try {
+    const userId = req.user.id_user; // dari middleware verifyToken
+    const data = await authService.getMe(userId);
+    return successResponse(res, 200, 'Berhasil mengambil data user dan menu', data);
+  } catch (error) {
     return errorResponse(res, error.statusCode || 500, error.message);
   }
 };
@@ -73,4 +84,5 @@ module.exports = {
   login,
   logout,
   refreshToken,
+  getMe,
 };
