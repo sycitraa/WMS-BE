@@ -73,7 +73,7 @@ const createDestination = async (data) => {
   });
 };
 
-const updateDestiantion = async (id, data) => {
+const updateDestination = async (id, data) => {
   const { destination_number, destination_name, destination_email, destination_address } = data;
 
   const destination = await prisma.destination.findUnique({
@@ -112,7 +112,6 @@ module.exports = {
   getAllDestinations,
   getDestinationById,
   createDestination,
-  updateDestiantion,
+  updateDestination,
   deleteDestination
 }
-

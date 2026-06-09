@@ -32,7 +32,7 @@ const addDestination = async (req, res) => {
 const updateDestinationData = async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
-    const destination = await destinationService.updateDestiantion(id, req.body);
+    const destination = await destinationService.updateDestination(id, req.body);
     return successResponse(res, 200, 'Destination berhasil diperbarui', destination);
   } catch (error) {
     return errorResponse(res, error.statusCode || 500, error.message);
