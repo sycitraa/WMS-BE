@@ -6,6 +6,8 @@ const getAllOutboundPlans = async (query) => {
   const page = parseInt(query.page) || 1;
   const limit = parseInt(query.limit) || 10;
   const search = query.search || '';
+  const status = query.status || '';
+  const planning_month = query.planning_month || '';
 
   const skip = (page - 1) * limit;
 
@@ -17,6 +19,22 @@ const getAllOutboundPlans = async (query) => {
       { status: { contains: search, mode: 'insensitive' } },
       { user: { nama: { contains: search, mode: 'insensitive' } } }
     ];
+  }
+
+  if (status) {
+    whereCondition.status = status;
+  }
+
+  if (planning_month) {
+    const [year, month] = planning_month.split('-');
+    if (year && month) {
+      const startDate = new Date(year, month - 1, 1);
+      const endDate = new Date(year, month, 1);
+      whereCondition.planning_month = {
+        gte: startDate,
+        lt: endDate
+      };
+    }
   }
 
   const [data, totalItems] = await prisma.$transaction([
@@ -73,21 +91,20 @@ const getOutboundPlanById = async (id) => {
 const createOutboundPlan = async (userId, data) => {
   const { planning_month, remarks, details } = data;
 
-  if (!planning_month) {
-    throw new AppError('Planning Month wajib diisi', 400);
-  }
+  // Validasi relasi pada details
+  for (let i = 0; i < details.length; i++) {
+    const item = details[i];
+    const palletType = await prisma.palletType.findUnique({ where: { id_pallet_type: parseInt(item.id_pallet_type, 10) } });
+    if (!palletType) throw new AppError(`Pallet Type dengan ID ${item.id_pallet_type} tidak ditemukan atau sudah dihapus`, 404);
 
-  if (!details || !Array.isArray(details) || details.length === 0) {
-    throw new AppError('Outbound Plan harus memiliki minimal 1 Detail Item', 400);
+    const destination = await prisma.destination.findUnique({ where: { id_destination: parseInt(item.id_destination, 10) } });
+    if (!destination) throw new AppError(`Destination dengan ID ${item.id_destination} tidak ditemukan atau sudah dihapus`, 404);
   }
 
   const planDate = new Date(planning_month);
   const document_number = await generateDocumentNumber('OUTBOUND', planDate);
 
-  const formattedDetails = details.map((item, index) => {
-    if (!item.id_pallet_type || !item.id_destination || !item.quantity) {
-      throw new AppError(`Data item pada baris ke-${index + 1} tidak lengkap`, 400);
-    }
+  const formattedDetails = details.map((item) => {
     return {
       id_pallet_type: parseInt(item.id_pallet_type, 10),
       id_destination: parseInt(item.id_destination, 10),
@@ -130,14 +147,25 @@ const updateOutboundPlan = async (id, data) => {
     throw new AppError('Outbound Plan tidak ditemukan', 404);
   }
 
-  if (!details || !Array.isArray(details) || details.length === 0) {
-    throw new AppError('Outbound Plan harus memiliki minimal 1 Detail Item', 400);
+  // Guard: plan yang sudah berjalan di WO tidak boleh diedit
+  const relatedWO = await prisma.workOrder.findFirst({
+    where: { id_outbound_plan: id }
+  });
+  if (relatedWO && relatedWO.status !== 'TO_DO') {
+    throw new AppError('Plan tidak dapat diedit karena Work Order sudah berjalan atau selesai', 400);
   }
 
-  const formattedDetails = details.map((item, index) => {
-    if (!item.id_pallet_type || !item.id_destination || !item.quantity) {
-      throw new AppError(`Data item pada baris ke-${index + 1} tidak lengkap`, 400);
-    }
+  // Validasi relasi pada details
+  for (let i = 0; i < details.length; i++) {
+    const item = details[i];
+    const palletType = await prisma.palletType.findUnique({ where: { id_pallet_type: parseInt(item.id_pallet_type, 10) } });
+    if (!palletType) throw new AppError(`Pallet Type dengan ID ${item.id_pallet_type} tidak ditemukan atau sudah dihapus`, 404);
+
+    const destination = await prisma.destination.findUnique({ where: { id_destination: parseInt(item.id_destination, 10) } });
+    if (!destination) throw new AppError(`Destination dengan ID ${item.id_destination} tidak ditemukan atau sudah dihapus`, 404);
+  }
+
+  const formattedDetails = details.map((item) => {
     return {
       id_pallet_type: parseInt(item.id_pallet_type, 10),
       id_destination: parseInt(item.id_destination, 10),
@@ -180,11 +208,6 @@ const updateOutboundPlan = async (id, data) => {
 const updateOutboundPlanStatus = async (id, data) => {
   const { status, remarks } = data;
 
-  const allowedStatuses = ['APPROVE', 'REJECT'];
-  if (!status || !allowedStatuses.includes(status)) {
-    throw new AppError('Status harus APPROVE atau REJECT', 400);
-  }
-
   const existingPlan = await prisma.outboundPlan.findUnique({
     where: { id_outbound_plan: id }
   });
@@ -225,6 +248,14 @@ const deleteOutboundPlan = async (id) => {
   });
   if (!existingPlan) {
     throw new AppError('Outbound Plan tidak ditemukan', 404);
+  }
+
+  // Guard: plan tidak bisa dihapus jika sudah ada WO
+  const relatedWO = await prisma.workOrder.findFirst({
+    where: { id_outbound_plan: id }
+  });
+  if (relatedWO) {
+    throw new AppError('Plan tidak bisa dihapus karena sudah memiliki Work Order', 400);
   }
 
   await prisma.$transaction(async (tx) => {

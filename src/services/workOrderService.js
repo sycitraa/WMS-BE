@@ -104,24 +104,6 @@ const createWorkOrder = async (data) => {
     details
   } = data;
 
-  // ---- VALIDASI INPUT ----
-
-  // 1. Kategori wajib diisi dan hanya boleh INBOUND atau OUTBOUND
-  const allowedCategories = ['INBOUND', 'OUTBOUND'];
-  if (!work_order_category || !allowedCategories.includes(work_order_category)) {
-    throw new AppError('Kategori Work Order harus INBOUND atau OUTBOUND', 400);
-  }
-
-  // 2. Validasi field wajib
-  if (!id_warehouse_area || !id_user || !date) {
-    throw new AppError('Warehouse Area, User (Operator), dan Tanggal wajib diisi', 400);
-  }
-
-  // 3. Validasi detail items
-  if (!details || !Array.isArray(details) || details.length === 0) {
-    throw new AppError('Work Order harus memiliki minimal 1 Detail Item', 400);
-  }
-
   // ---- VALIDASI RELASI ----
 
   // 4. Validasi bahwa Plan yang direferensikan sudah APPROVE
@@ -254,11 +236,6 @@ const updateWorkOrder = async (id, data) => {
     );
   }
 
-  // 3. Validasi detail items
-  if (!details || !Array.isArray(details) || details.length === 0) {
-    throw new AppError('Work Order harus memiliki minimal 1 Detail Item', 400);
-  }
-
   // 4. Jika id_user diubah, pastikan user baru adalah OPERATOR
   if (id_user) {
     const assignedUser = await prisma.user.findUnique({
@@ -322,12 +299,6 @@ const updateWorkOrder = async (id, data) => {
 
 const updateWorkOrderStatus = async (id, data, requestingUser) => {
   const { status } = data;
-
-  // 1. Validasi status yang dikirim
-  const allowedStatuses = ['ON_PROGRESS', 'DONE'];
-  if (!status || !allowedStatuses.includes(status)) {
-    throw new AppError('Status harus ON_PROGRESS atau DONE', 400);
-  }
 
   // 2. Pastikan WO ada
   const existingWO = await prisma.workOrder.findUnique({

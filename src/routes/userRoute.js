@@ -1,5 +1,7 @@
 const express = require('express');
 const userController = require('../controllers/userController');
+const { validateBody } = require('../middlewares/validateMiddleware');
+const { createUserSchema, updateUserSchema } = require('../validations/userValidation');
 
 const router = express.Router();
 
@@ -14,10 +16,33 @@ const router = express.Router();
  * @swagger
  * /api/users:
  *   get:
- *     summary: Ambil semua daftar user
+ *     summary: Ambil semua daftar user dengan pagination dan filter
  *     tags: [Master Data User]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Nomor halaman pagination.
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Jumlah data per halaman.
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Pencarian berdasarkan nama atau email user.
+ *       - in: query
+ *         name: id_role
+ *         schema:
+ *           type: integer
+ *         description: Filter berdasarkan ID Role (1=ADMIN, 2=SUPERVISOR, dst).
  *     responses:
  *       200:
  *         description: Data user berhasil diambil.
@@ -33,33 +58,51 @@ const router = express.Router();
  *                   type: string
  *                   example: Data users berhasil diambil
  *                 data:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       id_user:
- *                         type: integer
- *                         example: 1
- *                       nama:
- *                         type: string
- *                         example: Admin WMS
- *                       email:
- *                         type: string
- *                         format: email
- *                         example: admin@wms.com
- *                       created_at:
- *                         type: string
- *                         format: date-time
- *                         example: 2026-04-27T08:00:00.000Z
- *                       role:
+ *                   type: object
+ *                   properties:
+ *                     data:
+ *                       type: array
+ *                       items:
  *                         type: object
  *                         properties:
- *                           id_role:
+ *                           id_user:
  *                             type: integer
  *                             example: 1
- *                           nama_role:
+ *                           nama:
  *                             type: string
- *                             example: ADMIN
+ *                             example: Admin WMS
+ *                           email:
+ *                             type: string
+ *                             format: email
+ *                             example: admin@wms.com
+ *                           created_at:
+ *                             type: string
+ *                             format: date-time
+ *                             example: 2026-04-27T08:00:00.000Z
+ *                           role:
+ *                             type: object
+ *                             properties:
+ *                               id_role:
+ *                                 type: integer
+ *                                 example: 1
+ *                               nama_role:
+ *                                 type: string
+ *                                 example: ADMIN
+ *                     meta:
+ *                       type: object
+ *                       properties:
+ *                         totalItems:
+ *                           type: integer
+ *                           example: 25
+ *                         itemsPerPage:
+ *                           type: integer
+ *                           example: 10
+ *                         currentPage:
+ *                           type: integer
+ *                           example: 1
+ *                         totalPages:
+ *                           type: integer
+ *                           example: 3
  *       401:
  *         description: Token tidak valid atau tidak tersedia.
  *       403:
@@ -141,7 +184,7 @@ router.get('/', userController.getProfiles);
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.post('/', userController.createNewUser);
+router.post('/', validateBody(createUserSchema), userController.createNewUser);
 
 /**
  * @swagger
@@ -219,7 +262,7 @@ router.post('/', userController.createNewUser);
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.put('/:id', userController.updateExistingUser);
+router.put('/:id', validateBody(updateUserSchema), userController.updateExistingUser);
 
 /**
  * @swagger

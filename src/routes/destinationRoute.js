@@ -1,6 +1,8 @@
 const express = require('express');
 const destinationController = require('../controllers/destinationController');
 const authorizeRoles = require('../middlewares/roleMiddleware');
+const { validateBody } = require('../middlewares/validateMiddleware');
+const { createDestinationSchema, updateDestinationSchema } = require('../validations/destinationValidation');
 
 const router = express.Router();
 
@@ -230,7 +232,7 @@ router.get('/:id', authorizeRoles('ADMIN', 'SUPERVISOR'), destinationController.
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.post('/', authorizeRoles('ADMIN'), destinationController.addDestination);
+router.post('/', authorizeRoles('ADMIN'), validateBody(createDestinationSchema), destinationController.addDestination);
 
 /**
  * @swagger
@@ -311,7 +313,7 @@ router.post('/', authorizeRoles('ADMIN'), destinationController.addDestination);
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.put('/:id', authorizeRoles('ADMIN'), destinationController.updateDestinationData);
+router.put('/:id', authorizeRoles('ADMIN'), validateBody(updateDestinationSchema), destinationController.updateDestinationData);
 
 /**
  * @swagger

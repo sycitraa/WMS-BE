@@ -82,6 +82,15 @@ const deleteArea = async (id) => {
   const area = await prisma.warehouseArea.findUnique({ where: { id_warehouse_area: id } });
   if (!area) throw new AppError('Warehouse area tidak ditemukan', 404);
 
+  // Guard: jangan hapus jika masih ada Storage Bin yang aktif
+  const activeBins = await prisma.storageBin.findFirst({
+    where: { id_warehouse_area: id }
+  });
+  
+  if (activeBins) {
+    throw new AppError('Warehouse area tidak bisa dihapus karena masih memiliki Storage Bin yang aktif', 400);
+  }
+
   await prisma.warehouseArea.delete({ where: { id_warehouse_area: id } });
 }
 

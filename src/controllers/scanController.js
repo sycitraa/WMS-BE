@@ -13,7 +13,7 @@ const scanPallet = async (req, res) => {
 const getScansByWorkOrder = async (req, res) => {
   try {
     const woId = parseInt(req.params.woId, 10);
-    const result = await scanService.getScansByWorkOrder(woId, req.user);
+    const result = await scanService.getScansByWorkOrder(woId, req.user, req.query);
     return successResponse(res, 200, 'Riwayat scan berhasil diambil', result);
   } catch (error) {
     return errorResponse(res, error.statusCode || 500, error.message);

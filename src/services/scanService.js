@@ -162,7 +162,11 @@ const scanPallet = async (data, requestingUser) => {
   return scanWithRelations;
 };
 
-const getScansByWorkOrder = async (woId, requestingUser) => {
+const getScansByWorkOrder = async (woId, requestingUser, query = {}) => {
+  const page = parseInt(query.page) || 1;
+  const limit = parseInt(query.limit) || 10;
+  const skip = (page - 1) * limit;
+
   // 1. Pastikan WO ada
   const workOrder = await prisma.workOrder.findUnique({
     where: { id_work_order: woId }
@@ -175,28 +179,39 @@ const getScansByWorkOrder = async (woId, requestingUser) => {
   }
 
   // 3. Ambil semua scan untuk WO ini
-  const scans = await prisma.rfidScan.findMany({
-    where: { id_work_order: woId },
-    orderBy: { scanned_at: 'desc' },
-    include: {
-      pallet: {
-        select: {
-          rfid_tag: true,
-          status: true,
-          location: true,
-          pallet_type: { select: { pallet_name: true, pallet_category: true } }
-        }
-      },
-      user: { select: { nama: true } }
-    }
-  });
+  const [scans, totalScans] = await prisma.$transaction([
+    prisma.rfidScan.findMany({
+      where: { id_work_order: woId },
+      skip: skip,
+      take: limit,
+      orderBy: { scanned_at: 'desc' },
+      include: {
+        pallet: {
+          select: {
+            rfid_tag: true,
+            status: true,
+            location: true,
+            pallet_type: { select: { pallet_name: true, pallet_category: true } }
+          }
+        },
+        user: { select: { nama: true } }
+      }
+    }),
+    prisma.rfidScan.count({ where: { id_work_order: woId } })
+  ]);
 
   return {
     work_order_number: workOrder.work_order_number,
     work_order_category: workOrder.work_order_category,
     status: workOrder.status,
-    total_scans: scans.length,
-    scans
+    total_scans: totalScans,
+    scans,
+    meta: {
+      totalItems: totalScans,
+      itemsPerPage: limit,
+      currentPage: page,
+      totalPages: Math.ceil(totalScans / limit)
+    }
   };
 };
 

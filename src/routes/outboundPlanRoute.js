@@ -1,6 +1,8 @@
 const express = require('express');
 const outboundPlanController = require('../controllers/outboundPlanController');
 const authorizeRoles = require('../middlewares/roleMiddleware');
+const { validateBody } = require('../middlewares/validateMiddleware');
+const { createOutboundPlanSchema, updateOutboundPlanSchema, updateOutboundPlanStatusSchema } = require('../validations/outboundPlanValidation');
 
 const router = express.Router();
 
@@ -37,6 +39,18 @@ const router = express.Router();
  *         schema:
  *           type: string
  *         description: Pencarian berdasarkan nomor dokumen, status, atau nama pembuat.
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [WAITING_APPROVAL, APPROVE, REJECT]
+ *         description: Filter berdasarkan status plan.
+ *       - in: query
+ *         name: planning_month
+ *         schema:
+ *           type: string
+ *           example: "2026-05"
+ *         description: Filter berdasarkan bulan perencanaan (format YYYY-MM).
  *     responses:
  *       200:
  *         description: Data Outbound Plan berhasil diambil.
@@ -341,7 +355,7 @@ router.get('/:id', authorizeRoles('ADMIN', 'SUPERVISOR'), outboundPlanController
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.post('/', authorizeRoles('ADMIN'), outboundPlanController.addOutboundPlan);
+router.post('/', authorizeRoles('ADMIN'), validateBody(createOutboundPlanSchema), outboundPlanController.addOutboundPlan);
 
 /**
  * @swagger
@@ -463,7 +477,7 @@ router.post('/', authorizeRoles('ADMIN'), outboundPlanController.addOutboundPlan
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.put('/:id', authorizeRoles('ADMIN'), outboundPlanController.updateOutboundPlanData);
+router.put('/:id', authorizeRoles('ADMIN'), validateBody(updateOutboundPlanSchema), outboundPlanController.updateOutboundPlanData);
 
 /**
  * @swagger
@@ -537,7 +551,7 @@ router.put('/:id', authorizeRoles('ADMIN'), outboundPlanController.updateOutboun
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.patch('/:id/status', authorizeRoles('SUPERVISOR'), outboundPlanController.updateOutboundPlanStatus);
+router.patch('/:id/status', authorizeRoles('SUPERVISOR'), validateBody(updateOutboundPlanStatusSchema), outboundPlanController.updateOutboundPlanStatus);
 
 /**
  * @swagger

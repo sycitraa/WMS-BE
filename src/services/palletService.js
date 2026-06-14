@@ -88,7 +88,7 @@ const createPallet = async (data) => {
     data: {
       rfid_tag,
       id_pallet_type: typeId,
-      location: location || UNASSIGNED,
+      location: location || 'UNASSIGNED',
       status: status || 'AVAILABLE'
     }
   })

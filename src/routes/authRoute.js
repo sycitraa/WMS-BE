@@ -1,6 +1,8 @@
 const express = require("express");
 const authController = require("../controllers/authController");
 const verifyToken = require("../middlewares/authMiddleware");
+const { validateBody } = require('../middlewares/validateMiddleware');
+const { loginSchema } = require('../validations/authValidation');
 
 const router = express.Router();
 
@@ -79,7 +81,7 @@ const router = express.Router();
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.post("/login", authController.login);
+router.post("/login", validateBody(loginSchema), authController.login);
 
 /**
  * @swagger

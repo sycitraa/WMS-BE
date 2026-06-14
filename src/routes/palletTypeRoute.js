@@ -1,6 +1,8 @@
 const express = require('express');
 const palletTypeController = require('../controllers/palletTypeController');
 const authorizeRoles = require('../middlewares/roleMiddleware');
+const { validateBody } = require('../middlewares/validateMiddleware');
+const { createPalletTypeSchema, updatePalletTypeSchema } = require('../validations/palletTypeValidation');
 
 const router = express.Router();
 
@@ -205,7 +207,7 @@ router.get('/:id', authorizeRoles('ADMIN', 'SUPERVISOR'), palletTypeController.g
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.post('/', authorizeRoles('ADMIN'), palletTypeController.addPalletType);
+router.post('/', authorizeRoles('ADMIN'), validateBody(createPalletTypeSchema), palletTypeController.addPalletType);
 
 /**
  * @swagger
@@ -272,7 +274,7 @@ router.post('/', authorizeRoles('ADMIN'), palletTypeController.addPalletType);
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.put('/:id', authorizeRoles('ADMIN'), palletTypeController.updatePalletTypeData);
+router.put('/:id', authorizeRoles('ADMIN'), validateBody(updatePalletTypeSchema), palletTypeController.updatePalletTypeData);
 
 /**
  * @swagger

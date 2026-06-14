@@ -318,16 +318,18 @@ const getBoDDashboard = async ({ page = 1, limit = 10 } = {}) => {
   const outboundPlanning = outboundWOD._sum.total_planning || 0;
   const difference = (inboundPlanning + outboundPlanning) - (inboundActual + outboundActual);
 
-  // All documents planning (gabung inbound + outbound, dengan pagination)
+  // All documents planning (gabung inbound + outbound, dengan pagination yang lebih optimal)
   const [inboundDocs, outboundDocs] = await Promise.all([
     prisma.inboundPlan.findMany({
       where: { deleted_at: null },
       orderBy: { created_at: 'desc' },
+      take: skip + limit,
       include: { user: true },
     }),
     prisma.outboundPlan.findMany({
       where: { deleted_at: null },
       orderBy: { created_at: 'desc' },
+      take: skip + limit,
       include: { user: true },
     }),
   ]);

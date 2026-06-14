@@ -123,6 +123,11 @@ const deleteBin = async (id) => {
   const bin = await prisma.storageBin.findUnique({ where: { id_storage_bins: id } });
   if (!bin) throw new AppError('Storage Bin tidak ditemukan', 404);
 
+  // Guard: jangan hapus jika masih ada stok
+  if (bin.stock > 0) {
+    throw new AppError('Storage Bin tidak bisa dihapus karena masih memiliki stok pallet', 400);
+  }
+
   await prisma.storageBin.delete({ where: { id_storage_bins: id } });
 };
 
