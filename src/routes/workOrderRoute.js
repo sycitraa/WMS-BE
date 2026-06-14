@@ -1,6 +1,8 @@
 const express = require('express');
 const workOrderController = require('../controllers/workOrderController');
 const authorizeRoles = require('../middlewares/roleMiddleware');
+const { validateBody } = require('../middlewares/validateMiddleware');
+const { createWorkOrderSchema, updateWorkOrderSchema, updateWorkOrderStatusSchema } = require('../validations/workOrderValidation');
 
 const router = express.Router();
 
@@ -324,7 +326,7 @@ router.get('/:id', authorizeRoles('ADMIN', 'SUPERVISOR', 'OPERATOR'), workOrderC
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.post('/', authorizeRoles('ADMIN'), workOrderController.addWorkOrder);
+router.post('/', authorizeRoles('ADMIN'), validateBody(createWorkOrderSchema), workOrderController.addWorkOrder);
 
 /**
  * @swagger
@@ -401,7 +403,7 @@ router.post('/', authorizeRoles('ADMIN'), workOrderController.addWorkOrder);
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.put('/:id', authorizeRoles('ADMIN'), workOrderController.updateWorkOrderData);
+router.put('/:id', authorizeRoles('ADMIN'), validateBody(updateWorkOrderSchema), workOrderController.updateWorkOrderData);
 
 /**
  * @swagger
@@ -446,7 +448,7 @@ router.put('/:id', authorizeRoles('ADMIN'), workOrderController.updateWorkOrderD
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.patch('/:id/status', authorizeRoles('ADMIN', 'OPERATOR'), workOrderController.updateWorkOrderStatus);
+router.patch('/:id/status', authorizeRoles('ADMIN', 'OPERATOR'), validateBody(updateWorkOrderStatusSchema), workOrderController.updateWorkOrderStatus);
 
 /**
  * @swagger

@@ -6,6 +6,7 @@ const getAllUsers = async (query) => {
   const page = parseInt(query.page) || 1;
   const limit = parseInt(query.limit) || 10;
   const search = query.search || '';
+  const id_role = query.id_role || '';
 
   const skip = (page - 1) * limit;
 
@@ -16,6 +17,10 @@ const getAllUsers = async (query) => {
       { nama: { contains: search, mode: 'insensitive' } },
       { email: { contains: search, mode: 'insensitive' } }
     ];
+  }
+
+  if (id_role) {
+    whereCondition.id_role = parseInt(id_role, 10);
   }
 
   const [data, totalItems] = await prisma.$transaction([

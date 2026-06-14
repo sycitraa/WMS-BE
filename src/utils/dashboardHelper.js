@@ -110,8 +110,13 @@ const getRecentInput = async (userId = null, limit = 10) => {
   });
 
   return scans.map((scan) => {
-    // Cari bin dari work_order_detail
-    const binNumber = scan.work_order?.details?.[0]?.storage_bins?.bin_number || null;
+    // Cari bin dari work_order_detail yang sesuai dengan tipe pallet yang di-scan
+    const palletTypeId = scan.pallet?.id_pallet_type;
+    const matchingDetail = scan.work_order?.details?.find(
+      (d) => d.id_pallet_type === palletTypeId
+    );
+    const binNumber = matchingDetail?.storage_bins?.bin_number || null;
+
     return {
       scanned_at: scan.scanned_at,
       rfid_tag: scan.pallet?.rfid_tag || null,

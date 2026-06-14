@@ -1,6 +1,8 @@
 const express = require('express');
 const factoryController = require('../controllers/factoryController');
 const authorizeRoles = require('../middlewares/roleMiddleware');
+const { validateBody } = require('../middlewares/validateMiddleware');
+const { createFactorySchema, updateFactorySchema } = require('../validations/factoryValidation');
 
 const router = express.Router();
 
@@ -230,7 +232,7 @@ router.get('/:id', authorizeRoles('ADMIN', 'SUPERVISOR'), factoryController.getF
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.post('/', authorizeRoles('ADMIN'), factoryController.addFactory);
+router.post('/', authorizeRoles('ADMIN'), validateBody(createFactorySchema), factoryController.addFactory);
 
 /**
  * @swagger
@@ -311,7 +313,7 @@ router.post('/', authorizeRoles('ADMIN'), factoryController.addFactory);
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.put('/:id', authorizeRoles('ADMIN'), factoryController.updateFactoryData);
+router.put('/:id', authorizeRoles('ADMIN'), validateBody(updateFactorySchema), factoryController.updateFactoryData);
 
 /**
  * @swagger

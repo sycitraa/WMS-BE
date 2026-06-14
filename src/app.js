@@ -34,6 +34,7 @@ const authorizeRoles = require('./middlewares/roleMiddleware');
 
 const app = express();
 
+// settings CORS
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
@@ -65,6 +66,20 @@ app.use('/api/dashboard', verifyToken, dashboardRoutes);
 // Route dasar untuk testing
 app.get('/', (req, res) => {
     res.json({ message: 'Selamat datang di WMS API!' });
+});
+
+// 404 Route Not Found Handler
+app.use('*', (req, res) => {
+    res.status(404).json({ success: false, message: 'Endpoint tidak ditemukan' });
+});
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+    if (err.isOperational) {
+        return res.status(err.statusCode).json({ success: false, message: err.message });
+    }
+    console.error('UNCAUGHT ERROR:', err);
+    res.status(500).json({ success: false, message: 'Terjadi kesalahan internal server' });
 });
 
 module.exports = app;

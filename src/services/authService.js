@@ -29,13 +29,13 @@ const login = async (email, password) => {
     nama_role: user.role.nama_role,
   };
 
-  // 5. Generate Access Token (Masa berlaku 8 jam)
+  // 5. Generate Access Token
   const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN || '8h',
   });
 
-  // 6. Generate Refresh Token (Masa berlaku 7 hari)
-  const refreshTokenExpiresIn = 7 * 24 * 60 * 60 * 1000; // 7 hari dalam milliseconds
+  // 6. Generate Refresh Token
+  const refreshTokenExpiresIn = 7 * 24 * 60 * 60 * 1000;
   const refreshToken = jwt.sign(payload, process.env.JWT_SECRET, {
     expiresIn: '7d',
   });

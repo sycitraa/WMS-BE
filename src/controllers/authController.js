@@ -5,11 +5,6 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Validasi input kosong
-    if (!email || !password) {
-      return errorResponse(res, 400, 'Email dan password wajib diisi');
-    }
-
     const result = await authService.login(email, password);
 
     res.cookie('refreshToken', result.refreshToken, {

@@ -1,6 +1,8 @@
 const express = require('express');
 const inboundPlanController = require('../controllers/inboundPlanController');
 const authorizeRoles = require('../middlewares/roleMiddleware');
+const { validateBody } = require('../middlewares/validateMiddleware');
+const { createInboundPlanSchema, updateInboundPlanSchema, updateInboundPlanStatusSchema } = require('../validations/inboundPlanValidation');
 
 const router = express.Router();
 
@@ -38,6 +40,18 @@ const router = express.Router();
  *         schema:
  *           type: string
  *         description: Pencarian berdasarkan nomor dokumen, status, atau nama pembuat.
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [WAITING_APPROVAL, APPROVE, REJECT]
+ *         description: Filter berdasarkan status plan.
+ *       - in: query
+ *         name: planning_month
+ *         schema:
+ *           type: string
+ *           example: "2026-05"
+ *         description: Filter berdasarkan bulan perencanaan (format YYYY-MM).
  *     responses:
  *       200:
  *         description: Data Inbound Plan berhasil diambil.
@@ -342,7 +356,7 @@ router.get('/:id', authorizeRoles('ADMIN', 'SUPERVISOR'), inboundPlanController.
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.post('/', authorizeRoles('ADMIN'), inboundPlanController.addInboundPlan);
+router.post('/', authorizeRoles('ADMIN'), validateBody(createInboundPlanSchema), inboundPlanController.addInboundPlan);
 
 /**
  * @swagger
@@ -464,7 +478,7 @@ router.post('/', authorizeRoles('ADMIN'), inboundPlanController.addInboundPlan);
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.put('/:id', authorizeRoles('ADMIN'), inboundPlanController.updateInboundPlanData);
+router.put('/:id', authorizeRoles('ADMIN'), validateBody(updateInboundPlanSchema), inboundPlanController.updateInboundPlanData);
 
 /**
  * @swagger
@@ -538,7 +552,7 @@ router.put('/:id', authorizeRoles('ADMIN'), inboundPlanController.updateInboundP
  *       500:
  *         description: Terjadi kesalahan server.
  */
-router.patch('/:id/status', authorizeRoles('SUPERVISOR'), inboundPlanController.updateInboundPlanStatus);
+router.patch('/:id/status', authorizeRoles('SUPERVISOR'), validateBody(updateInboundPlanStatusSchema), inboundPlanController.updateInboundPlanStatus);
 
 /**
  * @swagger
