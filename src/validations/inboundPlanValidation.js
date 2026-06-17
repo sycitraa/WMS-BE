@@ -19,7 +19,8 @@ const updateInboundPlanSchema = Joi.object({
 });
 
 const updateInboundPlanStatusSchema = Joi.object({
-  status: Joi.string().valid('APPROVE', 'REJECT').required()
+  status: Joi.string().valid('APPROVE', 'REJECT').required(),
+  remarks: Joi.string().allow('', null).optional()
 });
 
 module.exports = {
