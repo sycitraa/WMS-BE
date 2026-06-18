@@ -162,9 +162,39 @@ const getMe = async (userId) => {
   };
 };
 
+const changePassword = async (id_user, password_lama, password_baru) => {
+  if (!password_lama || !password_baru) {
+    throw new AppError('Password lama dan baru harus diisi', 400)
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id_user },
+  });
+
+  if (!user) {
+    throw new AppError('User tidak ditemukan', 404);
+  }
+
+  const isPasswordValid = await bcrypt.compare(password_lama, user.password);
+  if (!isPasswordValid) {
+    throw new AppError('Password lama salah', 401);
+  }
+
+  const hashedPassword = await bcrypt.hash(password_baru, 10);
+  await prisma.user.update({
+    where: { id_user },
+    data: { password: hashedPassword },
+  });
+
+  return {
+    message: 'Password berhasil diubah',
+  };
+}
+
 module.exports = {
   login,
   logout,
   refreshAccessToken,
   getMe,
+  changePassword,
 };

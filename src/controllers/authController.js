@@ -75,9 +75,21 @@ const getMe = async (req, res) => {
   }
 };
 
+const changePassword = async (req, res) => {
+  try {
+    const userId = req.user.id_user;
+    const { password_lama, password_baru } = req.body;
+    const result = await authService.changePassword(userId, password_lama, password_baru);
+    return successResponse(res, 200, 'Password berhasil diubah', result);
+  } catch (error) {
+    return errorResponse(res, error.statusCode || 500, error.message);
+  }
+};
+
 module.exports = {
   login,
   logout,
   refreshToken,
   getMe,
+  changePassword,
 };

@@ -165,4 +165,41 @@ router.post("/refresh", authController.refreshToken);
  */
 router.get("/me", verifyToken, authController.getMe);
 
+/**
+ * @swagger
+ * /api/auth/change-password:
+ *   put:
+ *     summary: Mengubah password user
+ *     description: Mengubah password user berdasarkan token yang valid dan password lama serta password baru.
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - password_lama
+ *               - password_baru
+ *             properties:
+ *               password_lama:
+ *                 type: string
+ *                 example: password123
+ *               password_baru:
+ *                 type: string
+ *                 example: password456
+ *     responses:
+ *       200:
+ *         description: Password berhasil diubah
+ *       400:
+ *         description: Password lama dan baru harus diisi
+ *       401:
+ *         description: Unauthorized (Token tidak ada atau tidak valid)
+ *       404:
+ *         description: User tidak ditemukan
+ */
+router.put("/change-password", verifyToken, authController.changePassword);
+
 module.exports = router;
