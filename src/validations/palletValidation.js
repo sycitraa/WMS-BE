@@ -1,7 +1,7 @@
 const Joi = require('joi');
 
 const createPalletSchema = Joi.object({
-  rfid_tag: Joi.string().required(),
+  rfid_tag: Joi.string().required().max(25),
   id_pallet_type: Joi.number().required(),
   location: Joi.string().allow('', null).optional(),
   status: Joi.string().allow('', null).optional()
