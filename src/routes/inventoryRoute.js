@@ -1,5 +1,7 @@
 const express = require('express');
 const inventoryController = require('../controllers/inventoryController');
+const verifyToken = require('../middlewares/authMiddleware');
+const authorizeRoles = require('../middlewares/roleMiddleware');
 
 const router = express.Router();
 
@@ -212,4 +214,68 @@ router.get('/', inventoryController.getInventory);
  */
 router.get('/locations', inventoryController.getInventoryLocations);
 
+/**
+ * @swagger
+ * /api/inventory/export/stock-level:
+ *   get:
+ *     summary: Export laporan Stock Level ke file Excel (.xlsx)
+ *     description: Mengunduh laporan stok pallet per kategori dalam format Excel. Hanya dapat diakses oleh role BOD. Nama file otomatis menyertakan tanggal download.
+ *     tags: [Inventory]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: File Excel berhasil diunduh
+ *         content:
+ *           application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       401:
+ *         description: Unauthorized (Token tidak valid)
+ *       403:
+ *         description: Akses ditolak (role bukan BOD)
+ *       500:
+ *         description: Gagal mengirim file laporan
+ */
+router.get('/export/stock-level', verifyToken, authorizeRoles('BOD'), inventoryController.exportStockLevel);
+
+/**
+ * @swagger
+ * /api/inventory/export/locations/{id_pallet_type}:
+ *   get:
+ *     summary: Export laporan Location per Pallet Type ke file Excel (.xlsx)
+ *     description: Mengunduh laporan lokasi pallet tertentu berdasarkan id_pallet_type. Hanya dapat diakses oleh role BOD. Nama file otomatis menyertakan nama pallet dan tanggal download.
+ *     tags: [Inventory]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id_pallet_type
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID Pallet Type yang ingin di-export lokasinya
+ *     responses:
+ *       200:
+ *         description: File Excel berhasil diunduh
+ *         content:
+ *           application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       400:
+ *         description: Parameter id_pallet_type wajib diisi
+ *       401:
+ *         description: Unauthorized (Token tidak valid)
+ *       403:
+ *         description: Akses ditolak (role bukan BOD)
+ *       404:
+ *         description: Pallet type tidak ditemukan
+ *       500:
+ *         description: Gagal mengirim file laporan
+ */
+router.get('/export/locations/:id_pallet_type', verifyToken, authorizeRoles('BOD'), inventoryController.exportLocations);
+
 module.exports = router;
+

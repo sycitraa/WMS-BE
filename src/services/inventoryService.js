@@ -1,9 +1,9 @@
 const prisma = require('../config/prisma');
+const { formatDatetime } = require('../utils/excelHelper');
 
 const getInventoryData = async ({ page = 1, limit = 10, search = '' }) => {
   const skip = (page - 1) * limit;
 
-  // 1. Ambil data Pallet Type dengan search & pagination
   const whereCondition = {
     deleted_at: null,
     OR: [
@@ -21,7 +21,6 @@ const getInventoryData = async ({ page = 1, limit = 10, search = '' }) => {
     prisma.palletType.count({ where: whereCondition })
   ]);
 
-  // Group by untuk inbound WOD
   const inboundWODGroup = await prisma.workOrderDetail.groupBy({
     by: ['id_pallet_type'],
     _sum: { actual_pcs: true },
@@ -33,7 +32,6 @@ const getInventoryData = async ({ page = 1, limit = 10, search = '' }) => {
     }
   });
 
-  // Group by untuk outbound WOD
   const outboundWODGroup = await prisma.workOrderDetail.groupBy({
     by: ['id_pallet_type'],
     _sum: { actual_pcs: true },
@@ -45,7 +43,6 @@ const getInventoryData = async ({ page = 1, limit = 10, search = '' }) => {
     }
   });
 
-  // Group by untuk total stock AVAILABLE
   const totalStockGroup = await prisma.pallet.groupBy({
     by: ['id_pallet_type'],
     _count: { id_pallet: true },
@@ -55,7 +52,6 @@ const getInventoryData = async ({ page = 1, limit = 10, search = '' }) => {
     }
   });
 
-  // Buat lookup map untuk performa
   const inboundMap = inboundWODGroup.reduce((acc, curr) => {
     acc[curr.id_pallet_type] = curr._sum.actual_pcs || 0;
     return acc;
@@ -71,7 +67,6 @@ const getInventoryData = async ({ page = 1, limit = 10, search = '' }) => {
     return acc;
   }, {});
 
-  // 2. Kalkulasi data per Pallet Type (tanpa query DB di dalam loop)
   const items = palletTypes.map((pt) => {
     const inbound = inboundMap[pt.id_pallet_type] || 0;
     const outbound = outboundMap[pt.id_pallet_type] || 0;
@@ -97,7 +92,6 @@ const getInventoryData = async ({ page = 1, limit = 10, search = '' }) => {
     };
   });
 
-  // 3. Stat cards global
   const totalAvailable = await prisma.pallet.count({
     where: { status: 'AVAILABLE', deleted_at: null }
   });
@@ -121,14 +115,9 @@ const getInventoryData = async ({ page = 1, limit = 10, search = '' }) => {
   };
 };
 
-/**
- * Ambil breakdown stock pallet per lokasi (storage bin).
- * Menampilkan: pallet_name, pallet_category, stock, location (warehouse_area / bin_number)
- */
 const getInventoryLocations = async ({ page = 1, limit = 10, search = '', id_warehouse_area = '' }) => {
   const skip = (page - 1) * limit;
 
-  // Build where untuk StorageBin
   const binWhere = {
     stock: { gt: 0 },
     deleted_at: null,
@@ -138,7 +127,6 @@ const getInventoryLocations = async ({ page = 1, limit = 10, search = '', id_war
     binWhere.id_warehouse_area = parseInt(id_warehouse_area, 10);
   }
 
-  // Ambil semua storage bins yang sesuai filter
   const storageBins = await prisma.storageBin.findMany({
     where: binWhere,
     include: {
@@ -152,7 +140,6 @@ const getInventoryLocations = async ({ page = 1, limit = 10, search = '', id_war
     return acc;
   }, {});
 
-  // Group pallet berdasarkan bin dan pallet type, sekaligus!
   const palletCounts = await prisma.pallet.groupBy({
     by: ['id_pallet_type', 'location'],
     where: {
@@ -163,7 +150,6 @@ const getInventoryLocations = async ({ page = 1, limit = 10, search = '', id_war
     _count: { id_pallet: true }
   });
 
-  // Ambil data Pallet Type untuk lookup
   const palletTypeIds = [...new Set(palletCounts.map(pc => pc.id_pallet_type))];
   const allPalletTypes = await prisma.palletType.findMany({
     where: { id_pallet_type: { in: palletTypeIds }, deleted_at: null },
@@ -175,13 +161,11 @@ const getInventoryLocations = async ({ page = 1, limit = 10, search = '', id_war
     return acc;
   }, {});
 
-  // Rakit hasil akhir
   const rows = [];
   for (const pc of palletCounts) {
     const palletType = ptMap[pc.id_pallet_type];
     if (!palletType) continue;
 
-    // Filter by search (pallet_name atau pallet_category)
     if (search) {
       const term = search.toLowerCase();
       if (
@@ -206,10 +190,8 @@ const getInventoryLocations = async ({ page = 1, limit = 10, search = '', id_war
     });
   }
 
-  // Sort by location untuk konsistensi
   rows.sort((a, b) => a.location.localeCompare(b.location));
 
-  // Pagination manual setelah filter
   const totalItems = rows.length;
   const paginatedRows = rows.slice(skip, skip + parseInt(limit));
 
@@ -224,7 +206,73 @@ const getInventoryLocations = async ({ page = 1, limit = 10, search = '', id_war
   };
 };
 
+const getStockLevelExportData = async () => {
+  const palletTypes = await prisma.palletType.findMany({
+    where: { deleted_at: null },
+    orderBy: { pallet_name: 'asc' },
+  });
+
+  const stockGroup = await prisma.pallet.groupBy({
+    by: ['id_pallet_type'],
+    where: { status: 'AVAILABLE', deleted_at: null },
+    _count: { id_pallet: true },
+  });
+
+  const stockMap = stockGroup.reduce((acc, curr) => {
+    acc[curr.id_pallet_type] = curr._count.id_pallet;
+    return acc;
+  }, {});
+
+  const reportDate = formatDatetime(new Date());
+
+  return palletTypes.map((pt, index) => {
+    const totalStock = stockMap[pt.id_pallet_type] || 0;
+
+    let stockLevel;
+    if (totalStock === 0) stockLevel = 'OUT_OF_STOCK';
+    else if (totalStock <= 10) stockLevel = 'LOW_STOCK';
+    else stockLevel = 'IN_STOCK';
+
+    return [index + 1, pt.pallet_name, pt.pallet_category, stockLevel, totalStock, reportDate];
+  });
+};
+
+const getLocationsExportData = async (idPalletType) => {
+  const palletType = await prisma.palletType.findFirst({
+    where: { id_pallet_type: idPalletType, deleted_at: null },
+  });
+
+  if (!palletType) return null;
+
+  const palletCounts = await prisma.pallet.groupBy({
+    by: ['location'],
+    where: {
+      id_pallet_type: idPalletType,
+      status: 'AVAILABLE',
+      deleted_at: null,
+      location: { not: null },
+    },
+    _count: { id_pallet: true },
+    orderBy: { location: 'asc' },
+  });
+
+  const reportDate = formatDatetime(new Date());
+
+  const rows = palletCounts.map((pc, index) => [
+    index + 1,
+    palletType.pallet_name,
+    palletType.pallet_category,
+    pc._count.id_pallet,
+    pc.location,
+    reportDate,
+  ]);
+
+  return { palletName: palletType.pallet_name, rows };
+};
+
 module.exports = {
   getInventoryData,
-  getInventoryLocations
+  getInventoryLocations,
+  getStockLevelExportData,
+  getLocationsExportData,
 };
