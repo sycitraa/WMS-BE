@@ -27,6 +27,7 @@ const workOrderRoutes = require('./routes/workOrderRoute');
 const scanRoutes = require('./routes/scanRoute');
 const inventoryRoutes = require('./routes/inventoryRoute');
 const dashboardRoutes = require('./routes/dashboardRoute');
+const importRoutes = require('./routes/importRoute');
 
 // Import Middleware
 const verifyToken = require('./middlewares/authMiddleware');
@@ -62,6 +63,7 @@ app.use('/api/work-orders', verifyToken, workOrderRoutes);
 app.use('/api/scans', verifyToken, scanRoutes);
 app.use('/api/inventory', verifyToken, inventoryRoutes);
 app.use('/api/dashboard', verifyToken, dashboardRoutes);
+app.use('/api/import', importRoutes);
 
 // Route dasar untuk testing
 app.get('/', (req, res) => {
