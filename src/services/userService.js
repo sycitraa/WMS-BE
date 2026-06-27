@@ -1,19 +1,54 @@
-// src/services/userService.js
 const prisma = require('../config/prisma');
 const bcrypt = require('bcryptjs');
 const AppError = require('../utils/AppError');
 
-const getAllUsers = async () => {
-  return await prisma.user.findMany({
-    select: {
-      id_user: true,
-      nama: true,
-      email: true,
-      created_at: true,
-      role: { select: { id_role: true, nama_role: true } }
-    },
-    orderBy: { id_user: 'asc' }
-  });
+const getAllUsers = async (query) => {
+  const page = parseInt(query.page) || 1;
+  const limit = parseInt(query.limit) || 10;
+  const search = query.search || '';
+  const id_role = query.id_role || '';
+
+  const skip = (page - 1) * limit;
+
+  const whereCondition = {};
+
+  if (search) {
+    whereCondition.OR = [
+      { nama: { contains: search, mode: 'insensitive' } },
+      { email: { contains: search, mode: 'insensitive' } }
+    ];
+  }
+
+  if (id_role) {
+    whereCondition.id_role = parseInt(id_role, 10);
+  }
+
+  const [data, totalItems] = await prisma.$transaction([
+    prisma.user.findMany({
+      where: whereCondition,
+      skip: skip,
+      take: limit,
+      select: {
+        id_user: true,
+        nama: true,
+        email: true,
+        created_at: true,
+        role: { select: { id_role: true, nama_role: true } }
+      },
+      orderBy: { id_user: 'asc' }
+    }),
+    prisma.user.count({ where: whereCondition })
+  ]);
+
+  return {
+    data,
+    meta: {
+      totalItems,
+      itemsPerPage: limit,
+      currentPage: page,
+      totalPages: Math.ceil(totalItems / limit)
+    }
+  };
 };
 
 const createUser = async (data) => {
@@ -39,6 +74,12 @@ const updateUser = async (id, data) => {
   // Cek user ada atau tidak
   const user = await prisma.user.findUnique({ where: { id_user: id } });
   if (!user) throw new AppError('User tidak ditemukan', 404);
+
+  // Cek duplikasi email jika email diubah
+  if (email && email !== user.email) {
+    const existingEmail = await prisma.user.findUnique({ where: { email } });
+    if (existingEmail) throw new AppError('Email sudah digunakan oleh user lain', 400);
+  }
 
   const updateData = { nama, email, id_role };
 

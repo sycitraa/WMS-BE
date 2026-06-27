@@ -1,5 +1,5 @@
 const swaggerJSDoc = require('swagger-jsdoc');
-const path = require('path'); // <-- 1. Tambahkan ini di paling atas
+const path = require('path');
 
 const options = {
   definition: {

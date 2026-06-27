@@ -1,4 +1,3 @@
-// src/middlewares/roleMiddleware.js
 const { errorResponse } = require('../utils/responseFormatter');
 
 // Fungsi ini menggunakan teknik 'closure' agar kita bisa memasukkan parameter role

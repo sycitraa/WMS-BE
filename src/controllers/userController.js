@@ -3,7 +3,7 @@ const { successResponse, errorResponse } = require('../utils/responseFormatter')
 
 const getProfiles = async (req, res) => {
   try {
-    const users = await userService.getAllUsers();
+    const users = await userService.getAllUsers(req.query);
     return successResponse(res, 200, 'Data users berhasil diambil', users);
   } catch (error) {
     return errorResponse(res, error.statusCode || 500, error.message);

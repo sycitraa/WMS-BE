@@ -50,8 +50,10 @@ model User {
   email      String   @unique @db.VarChar(100)
   password   String   @db.VarChar(225) // Di gambar: VARCHAR(225)
   created_at DateTime @default(now())
+  deleted_at DateTime?
   
-  role       Role     @relation(fields: [id_role], references: [id_role])
+  role            Role            @relation(fields: [id_role], references: [id_role])
+  refreshTokens   RefreshToken[]
 
   inbound_plans  InboundPlan[]
   outbound_plans OutboundPlan[]
@@ -61,9 +63,22 @@ model User {
   @@map("users")
 }
 
+model RefreshToken {
+  id_refresh_token Int      @id @default(autoincrement())
+  id_user          Int
+  token            String   @unique @db.Text
+  expires_at       DateTime
+  created_at       DateTime @default(now())
+  
+  user             User     @relation(fields: [id_user], references: [id_user], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
 model Menu {
   id_menu   Int        @id @default(autoincrement())
   nama_menu String     @db.VarChar(50)
+  path_key  String     @unique @db.VarChar(50)
   roles     RoleMenu[]
 
   @@map("menu")
@@ -88,6 +103,7 @@ model Factory {
   factory_email   String              @db.VarChar(50)
   factory_name    String              @db.VarChar(50)
   factory_address String              @db.Text
+  deleted_at      DateTime?
   plan_details    InboundPlanDetail[]
 
   @@map("factory")
@@ -99,6 +115,7 @@ model Destination {
   destination_name    String @db.VarChar(50)
   destination_address String @db.Text
   id_destination      Int    @id @default(autoincrement())
+  deleted_at          DateTime?
 
   plan_details OutboundPlanDetail[]
 
@@ -109,6 +126,7 @@ model PalletType {
   id_pallet_type  Int                  @id @default(autoincrement())
   pallet_category String               @db.VarChar(50)
   pallet_name     String               @db.VarChar(100)
+  deleted_at      DateTime?
   pallets         Pallet[]
   inbound_details InboundPlanDetail[]
   outbound_details OutboundPlanDetail[]
@@ -121,6 +139,7 @@ model WarehouseArea {
   id_warehouse_area     Int          @id @default(autoincrement())
   warehouse_area_number String       @db.VarChar(20)
   warehouse_area_name   String       @db.VarChar(100)
+  deleted_at            DateTime?
   storage_bins          StorageBin[]
   work_orders           WorkOrder[]
 
@@ -130,9 +149,10 @@ model WarehouseArea {
 model StorageBin {
   id_storage_bins   Int           @id @default(autoincrement()) // Nama PK sesuai gambar
   id_warehouse_area Int
-  bin_number        String        @db.VarChar(50) // Nama kolom sesuai gambar
+  bin_number        String        @db.VarChar(50)
   max_quantity      Int
   stock             Int
+  deleted_at        DateTime?
   
   warehouse_area    WarehouseArea @relation(fields: [id_warehouse_area], references: [id_warehouse_area])
   wo_details        WorkOrderDetail[]
@@ -148,6 +168,7 @@ model Pallet {
   rfid_tag       String       @unique @db.VarChar(50) // Panjang 50 sesuai gambar
   location       String?      @db.VarChar(100)
   status         String?      @db.VarChar(100)
+  deleted_at     DateTime?
   
   pallet_type    PalletType   @relation(fields: [id_pallet_type], references: [id_pallet_type])
   scans          RfidScan[]
@@ -160,11 +181,12 @@ model Pallet {
 model InboundPlan {
   id_inbound_plan Int                 @id @default(autoincrement())
   id_user         Int
-  document_number String              @db.VarChar(10)
+  document_number String              @db.VarChar(30)
   planning_month  DateTime            @db.Date
   status          String?             @db.VarChar(100)
   remarks         String?             @db.Text
   created_at      DateTime            @default(now())
+  deleted_at      DateTime?
   
   user            User                @relation(fields: [id_user], references: [id_user])
   details         InboundPlanDetail[]
@@ -190,11 +212,12 @@ model InboundPlanDetail {
 model OutboundPlan {
   id_outbound_plan Int                  @id @default(autoincrement())
   id_user          Int
-  document_number  String               @db.VarChar(10)
+  document_number  String               @db.VarChar(30)
   planning_month   DateTime             @db.Date
   status           String?              @db.VarChar(100)
   remarks          String?              @db.Text
   created_at       DateTime             @default(now())
+  deleted_at       DateTime?
   
   user             User                 @relation(fields: [id_user], references: [id_user])
   details          OutboundPlanDetail[]
@@ -223,12 +246,13 @@ model WorkOrder {
   id_inbound_plan     Int?
   id_warehouse_area   Int
   id_user             Int
-  work_order_number   String            @db.VarChar(10)
+  work_order_number   String            @db.VarChar(30)
   work_order_category String            @db.VarChar(20)
   transfer_point      String?           @db.VarChar(100)
   date                DateTime          @db.Date
   remarks             String?           @db.Text
   status              String?           @db.VarChar(100)
+  deleted_at          DateTime?
   
   outbound_plan       OutboundPlan?     @relation(fields: [id_outbound_plan], references: [id_outbound_plan])
   inbound_plan        InboundPlan?      @relation(fields: [id_inbound_plan], references: [id_inbound_plan])

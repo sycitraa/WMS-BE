@@ -1,31 +1,84 @@
 const express = require('express');
 const warehouseAreaController = require('../controllers/warehouseAreaController');
-const verifyToken = require('../middlewares/authMiddleware');
-const authorizeRoles = require('../middlewares/roleMiddleware');
 
 const router = express.Router();
-
-router.use(verifyToken);
-router.use(authorizeRoles('ADMIN'));
 
 /**
  * @swagger
  * tags:
- *   - name: Master Warehouse Area
- *     description: API untuk mengelola Area Gudang
+ *   - name: Master Data Warehouse Area
+ *     description: Endpoint API untuk Master Data Warehouse Area
  */
 
 /**
  * @swagger
  * /api/warehouse-areas:
  *   get:
- *     summary: Ambil semua area gudang
- *     tags: [Master Warehouse Area]
+ *     summary: Ambil semua area gudang dengan pagination dan filtering
+ *     tags: [Master Data Warehouse Area]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Nomor halaman pagination.
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Jumlah data per halaman.
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Pencarian berdasarkan nomor atau nama area gudang.
  *     responses:
  *       200:
- *         description: Berhasil
+ *         description: Data warehouse area berhasil diambil.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Data Warehouse Area berhasil diambil
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id_warehouse_area:
+ *                         type: integer
+ *                         example: 1
+ *                       warehouse_area_number:
+ *                         type: string
+ *                         example: WH-AREA-001
+ *                       warehouse_area_name:
+ *                         type: string
+ *                         example: Transit
+ *                 meta:
+ *                   type: object
+ *                   properties:
+ *                     totalItems:
+ *                       type: integer
+ *                       example: 15
+ *                     itemsPerPage:
+ *                       type: integer
+ *                       example: 10
+ *                     currentPage:
+ *                       type: integer
+ *                       example: 1
+ *                     totalPages:
+ *                       type: integer
+ *                       example: 2
  */
 router.get('/', warehouseAreaController.getAreas);
 
@@ -34,7 +87,7 @@ router.get('/', warehouseAreaController.getAreas);
  * /api/warehouse-areas:
  *   post:
  *     summary: Tambah area baru
- *     tags: [Master Warehouse Area]
+ *     tags: [Master Data Warehouse Area]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -61,7 +114,7 @@ router.post('/', warehouseAreaController.addArea);
  * /api/warehouse-areas/{id}:
  *   put:
  *     summary: Update area gudang
- *     tags: [Master Warehouse Area]
+ *     tags: [Master Data Warehouse Area]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -105,7 +158,7 @@ router.put('/:id', warehouseAreaController.updateArea);
  * /api/warehouse-areas/{id}:
  *   delete:
  *     summary: Hapus area gudang
- *     tags: [Master Warehouse Area]
+ *     tags: [Master Data Warehouse Area]
  *     security:
  *       - bearerAuth: []
  *     parameters:

@@ -3,7 +3,7 @@ const { successResponse, errorResponse } = require('../utils/responseFormatter')
 
 const getAreas = async (req, res) => {
   try {
-    const areas = await warehouseAreaService.getAllWarehouseAreas();
+    const areas = await warehouseAreaService.getAllWarehouseAreas(req.query);
     return successResponse(res, 200, 'Data Warehouse Area berhasil diambil', areas);
   } catch (error) {
     return errorResponse(res, error.statusCode || 500, error.message);
