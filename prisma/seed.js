@@ -201,10 +201,10 @@ async function main() {
   // ---------------------------------------------------------
   let pallet = await prisma.pallet.findUnique({ where: { rfid_tag: '300833B2DDD9014000000001' } });
   if (!pallet) {
-    await prisma.pallet.create({
+    await prisma.pallet.createMany({
       data: [
         {
-          id_pallet_type: ptMap['T1B'], // Relasikan otomatis ke Pallet Type T1B
+          id_pallet_type: ptMap['T1B'],
           rfid_tag: '300833B2DDD9014000000001',
           location: 'WH-AREA-001',
           status: 'AVAILABLE'
@@ -227,7 +227,8 @@ async function main() {
           location: 'WH-AREA-001',
           status: 'AVAILABLE'
         }
-      ]
+      ],
+      skipDuplicates: true
     });
   }
   console.log('✅ Master Pallet (RFID) berhasil di-seed');
