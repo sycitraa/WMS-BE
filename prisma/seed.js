@@ -1,4 +1,4 @@
-require('dotenv').config(); 
+require('dotenv').config();
 const prisma = require('../src/config/prisma'); // Sesuaikan path jika berbeda
 const bcrypt = require('bcryptjs');
 
@@ -36,9 +36,21 @@ async function main() {
     },
     {
       nama: 'OP 1',
-      email: 'op1@example.com',
+      email: 'op1@wms.com',
       password: hashedPassword,
-      id_role: roleMap['OPERATOR'], 
+      id_role: roleMap['OPERATOR'],
+    },
+    {
+      nama: 'User SUPERVISOR',
+      email: 'supervisor@wms.com',
+      password: hashedPassword,
+      id_role: roleMap['SUPERVISOR'],
+    },
+    {
+      nama: 'User BOD',
+      email: 'bod@wms.com',
+      password: hashedPassword,
+      id_role: roleMap['BOD'],
     }
   ];
 
@@ -107,7 +119,7 @@ async function main() {
     { pallet_category: 'EG', pallet_name: 'SP1' },
     { pallet_category: 'RR Box', pallet_name: 'SP2' },
   ];
-  
+
   const ptMap = {};
   for (const pt of palletTypesData) {
     // Kita cari berdasarkan pallet_name
@@ -154,9 +166,9 @@ async function main() {
     { warehouse_area_number: 'WH-AREA-001', warehouse_area_name: 'Transit Incoming Area' },
     { warehouse_area_number: 'WH-AREA-002', warehouse_area_name: 'Quarantine Area' },
     { warehouse_area_number: 'WH-AREA-003', warehouse_area_name: 'Central Store Area' },
-    { warehouse_area_number: 'WH-AREA-004', warehouse_area_name: 'Delivery Area' }, 
+    { warehouse_area_number: 'WH-AREA-004', warehouse_area_name: 'Delivery Area' },
   ];
-  
+
   const areaMap = {};
   for (const area of areasData) {
     let existingArea = await prisma.warehouseArea.findFirst({ where: { warehouse_area_number: area.warehouse_area_number } });
@@ -190,12 +202,32 @@ async function main() {
   let pallet = await prisma.pallet.findUnique({ where: { rfid_tag: '300833B2DDD9014000000001' } });
   if (!pallet) {
     await prisma.pallet.create({
-      data: {
-        id_pallet_type: ptMap['T1B'], // Relasikan otomatis ke Pallet Type T1B
-        rfid_tag: '300833B2DDD9014000000001',
-        location: 'WH-AREA-001', 
-        status: 'AVAILABLE'
-      },
+      data: [
+        {
+          id_pallet_type: ptMap['T1B'], // Relasikan otomatis ke Pallet Type T1B
+          rfid_tag: '300833B2DDD9014000000001',
+          location: 'WH-AREA-001',
+          status: 'AVAILABLE'
+        },
+        {
+          id_pallet_type: ptMap['T1F'],
+          rfid_tag: '300833B2DDD9014000000002',
+          location: 'WH-AREA-001',
+          status: 'AVAILABLE'
+        },
+        {
+          id_pallet_type: ptMap['T1X'],
+          rfid_tag: '300833B2DDD9014000000003',
+          location: 'WH-AREA-001',
+          status: 'AVAILABLE'
+        },
+        {
+          id_pallet_type: ptMap['T1B'],
+          rfid_tag: '300833B2DDD9014000000004',
+          location: 'WH-AREA-001',
+          status: 'AVAILABLE'
+        }
+      ]
     });
   }
   console.log('✅ Master Pallet (RFID) berhasil di-seed');
